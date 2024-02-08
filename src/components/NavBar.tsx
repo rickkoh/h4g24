@@ -1,46 +1,120 @@
-import { Layout, Menu, Slider } from "antd";
+"use client";
+import {
+  Avatar,
+  Breadcrumb,
+  Layout,
+  Menu,
+  Space,
+  Typography,
+  theme,
+} from "antd";
 import Sider from "antd/es/layout/Sider";
-import { Content } from "antd/es/layout/layout";
+import { Content, Header } from "antd/es/layout/layout";
 import { PropsWithChildren } from "react";
+import {
+  TrophyOutlined,
+  RocketOutlined,
+  ProfileOutlined,
+} from "@ant-design/icons";
 
-import { UserOutlined } from "@ant-design/icons";
+import { usePathname, useRouter } from "next/navigation";
+import { CsvDataProvider } from "@/contexts/CsvDataProvider";
+import Link from "next/link";
+import { Logo } from "./Logo";
 
 export default function NavBar(props: PropsWithChildren) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // TODO: Handle authentication
+  // const { user } = useAuth();
+
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
   return (
-    <Layout style={{ minHeight: "100dvh", position: "relative" }} hasSider>
-      <Sider
-        collapsible
+    <Layout style={{ minHeight: "100vh" }}>
+      <Header
         style={{
-          height: "100vh",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: colorBgContainer,
+          padding: "0 20px",
         }}
       >
-        <div className="demo-logo-vertical" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={["1"]}
-          items={[
-            {
-              key: "1",
-              label: "Dashboard",
-              icon: <UserOutlined />,
-            },
-            {
-              key: "2",
-              label: "Survey",
-            },
-            {
-              key: "3",
-              label: "Programs",
-            },
-          ]}
-        />
-      </Sider>
-      <Content>{props.children}</Content>
+        <Space>
+          <Logo />
+
+          <Typography.Title
+            style={{
+              fontSize: "inherit",
+              marginBottom: 0,
+              fontWeight: 700,
+            }}
+          >
+            OCOTOFORM
+          </Typography.Title>
+        </Space>
+        <Avatar style={{ backgroundColor: "#f12333" }}>U</Avatar>
+      </Header>
+      <Layout>
+        <Sider collapsible>
+          <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={[pathname.split("/")[1]]}
+            items={[
+              {
+                key: "",
+                label: "Programs",
+                icon: <RocketOutlined />,
+              },
+              {
+                key: "activities",
+                label: "Activities",
+                icon: <TrophyOutlined />,
+              },
+              {
+                key: "surveys",
+                label: "Surveys",
+                icon: <ProfileOutlined />,
+              },
+              {
+                key: "test",
+                label: "Test",
+                icon: <ProfileOutlined />,
+              },
+              {
+                key: "test1",
+                label: "Test1",
+                icon: <ProfileOutlined />,
+              },
+            ]}
+            onClick={(e) => router.push("/" + e.key)}
+          />
+        </Sider>
+        <CsvDataProvider>
+          <Content style={{ padding: "20px" }}>
+            <Space
+              direction="vertical"
+              size="large"
+              style={{ display: "flex" }}
+            >
+              <Breadcrumb
+                items={pathname.split("/").map((item, i) => {
+                  if (i == pathname.split("/").length - 1) {
+                    return { title: item };
+                  }
+                  return { title: <Link href={"/" + item}>{item}</Link> };
+                })}
+              />
+              {props.children}
+            </Space>
+          </Content>
+        </CsvDataProvider>
+      </Layout>
     </Layout>
   );
 }

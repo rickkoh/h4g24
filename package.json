@@ -9,17 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/cssinjs": "^1.18.4",
-    "@ant-design/nextjs-registry": "^1.0.0",
     "@supabase/auth-helpers-nextjs": "^0.9.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.39.3",
+    "@ant-design/charts": "^2.0.3",
+    "@ant-design/nextjs-registry": "^1.0.0",
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
     "antd": "^5.13.3",
     "dotenv": "^16.4.1",
     "next": "14.1.0",
+    "papaparse": "^5.4.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.50.0",
+    "react-papaparse": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^20",
