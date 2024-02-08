@@ -1,9 +1,8 @@
 "use client";
 import { Button, Drawer, Space, Table, Tag } from "antd";
-import { useState } from "react";
-
 import { PlusOutlined } from "@ant-design/icons";
-import NewProgramForm from "@/components/forms/NewProgramForm";
+import TestComponentOne from "@/components/TestComponentOne";
+import { useState } from "react";
 
 const dataSource = [
   {
@@ -60,7 +59,9 @@ const columns = [
   },
 ];
 
-export default function Home() {
+<Table dataSource={dataSource} columns={columns} />;
+
+export default function ProgramsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <main>
@@ -71,7 +72,7 @@ export default function Home() {
             icon={<PlusOutlined />}
             onClick={() => setDrawerOpen(true)}
           >
-            Add new program
+            Add new activity
           </Button>
         </div>
         <Table dataSource={dataSource} columns={columns} />
@@ -81,7 +82,7 @@ export default function Home() {
         onClose={() => setDrawerOpen(false)}
         placement="right"
       >
-        <NewProgramForm />
+        hello
       </Drawer>
     </main>
   );
