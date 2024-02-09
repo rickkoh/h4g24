@@ -9,28 +9,34 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      activites: {
+      activities: {
         Row: {
+          created_at: string
           description: string | null
-          id: number
-          program_id: number
+          id: string
+          program_id: string | null
           title: string | null
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           description?: string | null
-          id?: number
-          program_id: number
+          id?: string
+          program_id?: string | null
           title?: string | null
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           description?: string | null
-          id?: number
-          program_id?: number
+          id?: string
+          program_id?: string | null
           title?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "activites_program_id_fkey"
+            foreignKeyName: "activities_program_id_fkey"
             columns: ["program_id"]
             isOneToOne: false
             referencedRelation: "programs"
@@ -40,29 +46,35 @@ export type Database = {
       }
       forms: {
         Row: {
-          activity_id: number | null
-          id: number
-          program_id: number | null
+          activity_id: string | null
+          created_at: string
+          id: string
+          program_id: string | null
           title: string | null
+          updated_at: string
         }
         Insert: {
-          activity_id?: number | null
-          id?: number
-          program_id?: number | null
+          activity_id?: string | null
+          created_at?: string
+          id?: string
+          program_id?: string | null
           title?: string | null
+          updated_at?: string
         }
         Update: {
-          activity_id?: number | null
-          id?: number
-          program_id?: number | null
+          activity_id?: string | null
+          created_at?: string
+          id?: string
+          program_id?: string | null
           title?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "forms_activity_id_fkey"
             columns: ["activity_id"]
             isOneToOne: false
-            referencedRelation: "activites"
+            referencedRelation: "activities"
             referencedColumns: ["id"]
           },
           {
@@ -76,43 +88,55 @@ export type Database = {
       }
       programs: {
         Row: {
+          created_at: string
           description: string | null
-          id: number
+          id: string
           title: string | null
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           description?: string | null
-          id?: number
+          id?: string
           title?: string | null
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           description?: string | null
-          id?: number
+          id?: string
           title?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       questions: {
         Row: {
-          analysis_type: Database["public"]["Enums"]["ANALYSIS_TYPE"]
-          form_id: number
-          id: number
+          analysis_type: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
+          created_at: string
+          form_id: string | null
+          id: string
           question_type: Database["public"]["Enums"]["QUESTION_TYPE"]
           text: string | null
+          updated_at: string
         }
         Insert: {
-          analysis_type: Database["public"]["Enums"]["ANALYSIS_TYPE"]
-          form_id: number
-          id?: number
+          analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
+          created_at?: string
+          form_id?: string | null
+          id?: string
           question_type: Database["public"]["Enums"]["QUESTION_TYPE"]
           text?: string | null
+          updated_at?: string
         }
         Update: {
-          analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"]
-          form_id?: number
-          id?: number
+          analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
+          created_at?: string
+          form_id?: string | null
+          id?: string
           question_type?: Database["public"]["Enums"]["QUESTION_TYPE"]
           text?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -126,29 +150,27 @@ export type Database = {
       }
       responses: {
         Row: {
-          answer: string | null
-          id: number
-          question_id: number
+          answer: string
+          created_at: string
+          id: string
+          question_id: string
+          updated_at: string
         }
         Insert: {
-          answer?: string | null
-          id?: number
-          question_id: number
+          answer: string
+          created_at?: string
+          id?: string
+          question_id?: string
+          updated_at?: string
         }
         Update: {
-          answer?: string | null
-          id?: number
-          question_id?: number
+          answer?: string
+          created_at?: string
+          id?: string
+          question_id?: string
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "responses_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -159,7 +181,11 @@ export type Database = {
     }
     Enums: {
       ANALYSIS_TYPE: "SENTIMENTAL" | "SUMMARY" | "KEYWORD"
-      QUESTION_TYPE: "TEXT_ANSWER" | "MULTIPLE_CHOICE" | "CHECKBOX"
+      QUESTION_TYPE:
+        | "TEXT_ANSWER"
+        | "MULTIPLE_CHOICE"
+        | "CHECKBOX"
+        | "LINEAR_SCALE"
     }
     CompositeTypes: {
       [_ in never]: never

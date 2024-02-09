@@ -1,29 +1,36 @@
+import { QuestionInsert, ResponseInsert } from "@/types/types";
+
 export function getColumnsFromJson(data: any) {
   if (data === undefined) return [];
   const columns = [];
   for (const key in data[0]) {
     columns.push({
       title: key,
-      dataIndex: key,
+
       key: key,
     });
   }
   return columns;
 }
 
-export function groupResponsesByQuestion(data: { [key: string]: string }[]): {
-  [key: string]: string[];
-} {
-  const groupedResponses: { [key: string]: string[] } = {};
-
+export function groupResponsesByQuestion(data: { [key: string]: string }[], questions: QuestionInsert[]): ResponseInsert[] {
+  const groupedResponses: ResponseInsert[] = [];
   data.forEach((response) => {
     Object.keys(response).forEach((key) => {
-      if (!groupedResponses[key]) {
-        groupedResponses[key] = [];
+      let timestamp = response["Timestamp"];
+      if (key !== "Timestamp") {
+        const question = questions.find((question) => question.text === key);
+        if (question) {
+          groupedResponses.push({
+            id: crypto.randomUUID(),
+            question_id: question.id,
+            answer: response[key],
+            created_at: timestamp,
+            updated_at: timestamp,
+          });
+        }
       }
-      groupedResponses[key].push(response[key]);
     });
   });
-
   return groupedResponses;
 }
