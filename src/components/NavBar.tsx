@@ -130,16 +130,6 @@ export default function NavBar(props: PropsWithChildren) {
                     label: "Surveys",
                     icon: <ProfileOutlined />,
                   },
-                  {
-                    key: "test",
-                    label: "Test",
-                    icon: <ProfileOutlined />,
-                  },
-                  {
-                    key: "test1",
-                    label: "Test1",
-                    icon: <ProfileOutlined />,
-                  },
                 ]}
                 onClick={(e) => router.push("/" + e.key)}
               />
@@ -166,7 +156,7 @@ export default function NavBar(props: PropsWithChildren) {
           </Layout>
         </Layout>
       ) : (
-        <Spin fullscreen />
+        <Spin fullscreen size="large" />
       )}
     </>
   );
