@@ -1,10 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Avatar, Card, Col, Collapse, CollapseProps, Row, Space, Spin, Table } from "antd";
+import {
+  Avatar,
+  Card,
+  Col,
+  Collapse,
+  CollapseProps,
+  Row,
+  Space,
+  Spin,
+  Table,
+} from "antd";
 import DemoPie from "@/components/chart/Pie";
 import { RobotOutlined } from "@ant-design/icons";
 import DemoColumn from "@/components/chart/Column";
-import { GetFormById, GetQuestionByFormId, GetResponseByQuestionId } from "@/hooks/supabaseHooks";
+import {
+  GetFormById,
+  GetQuestionByFormId,
+  GetResponseByQuestionId,
+} from "@/hooks/supabaseHooks";
 import { Question, Response } from "@/types/types";
 import Column from "antd/es/table/Column";
 import DemoBar from "@/components/chart/Bar";
@@ -13,7 +27,13 @@ const items: CollapseProps["items"] = [
   {
     key: "1",
     label: "What do most people say?",
-    children: <p>Most people like the program and give a positive feedback. However, there are some people who give a negative feedback, particularly about the program's duration.</p>,
+    children: (
+      <p>
+        Most people like the program and give a positive feedback. However,
+        there are some people who give a negative feedback, particularly about
+        the program's duration.
+      </p>
+    ),
   },
   {
     key: "2",
@@ -24,7 +44,9 @@ const items: CollapseProps["items"] = [
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const [formResponses, setFormResponses] = useState<Map<Question, Response[]>>(new Map());
+  const [formResponses, setFormResponses] = useState<Map<Question, Response[]>>(
+    new Map()
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -39,7 +61,9 @@ export default function Page({ params }: { params: { id: string } }) {
       const responsesMap = new Map<Question, Response[]>();
       await Promise.all(
         questions.map(async (question) => {
-          const responseResult = await GetResponseByQuestionId({ questionId: question.id });
+          const responseResult = await GetResponseByQuestionId({
+            questionId: question.id,
+          });
           responsesMap.set(question, responseResult || []);
         })
       );
@@ -54,9 +78,13 @@ export default function Page({ params }: { params: { id: string } }) {
     switch (question.question_type) {
       case "TEXT_ANSWER":
         return (
-          <Space direction="horizontal" size="large" style={{ display: "flex", height: "200px" }}>
+          <Space
+            direction="horizontal"
+            size="large"
+            style={{ display: "flex", height: "200px" }}
+          >
             <Avatar size={64} icon={<RobotOutlined />} />
-            <Collapse items={items} defaultActiveKey={["1"]} className="!w-full" />
+            <Collapse items={items} defaultActiveKey={[]} className="!w-full" />
           </Space>
         );
       case "MULTIPLE_CHOICE":
@@ -93,7 +121,9 @@ export default function Page({ params }: { params: { id: string } }) {
             dataSource={Array.from(formResponses, ([question, responses]) => {
               return {
                 question: question.text,
-                responses: responses.map((response) => response.answer).join(", "),
+                responses: responses
+                  .map((response) => response.answer)
+                  .join(", "),
               };
             })}
             scroll={{ x: "max-content" }}
