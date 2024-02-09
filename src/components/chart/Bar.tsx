@@ -1,41 +1,28 @@
 import React from "react";
 import { Bar } from "@ant-design/plots";
 import { BarConfig } from "@ant-design/charts";
+import { Response } from "@/types/types";
 
-// convert the json response to the format of the respective chart
+export default function DemoBar({ responses }: { responses: Response[] }) {
+  function convertResponsetoChartData(responses: Response[]) {
+    const countByValue: Record<string, number> = {};
+    responses.forEach((response) => {
+      const answers = response.answer.split(";");
+      answers.forEach((answer) => {
+        countByValue[answer] = (countByValue[answer] || 0) + 1;
+      });
+    });
+    const data = Object.entries(countByValue).map(([type, value]) => ({ y: type, x: value }));
+    return data;
+  }
 
-export default function DemoBar() {
-  const data = [
-    {
-      y: "1951",
-      x: 38,
-    },
-    {
-      y: "1952",
-      x: 52,
-    },
-    {
-      y: "1956",
-      x: 61,
-    },
-    {
-      y: "1957",
-      x: 145,
-    },
-    {
-      y: "1958",
-      x: 48,
-    },
-  ];
+  const data = convertResponsetoChartData(responses);
   const config: BarConfig = {
     data,
     height: 200,
     xField: "y",
     yField: "x",
     seriesField: "y",
-    legend: {
-      position: "top-left",
-    },
   };
   return <Bar {...config} />;
 }

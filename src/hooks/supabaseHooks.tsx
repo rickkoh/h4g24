@@ -1,12 +1,9 @@
+import { printTreeView } from "next/dist/build/utils";
 import { Database } from "../types/supabase";
 import supabase from "./supabaseConfig";
+import { Activity, FormInsert, Program, Question, QuestionInsert, Response, ResponseInsert } from "../types/types";
 
 // Types
-type Form = Database["public"]["Tables"]["forms"]["Row"];
-type Activity = Database["public"]["Tables"]["activites"]["Row"];
-type Program = Database["public"]["Tables"]["programs"]["Row"];
-type Question = Database["public"]["Tables"]["questions"]["Row"];
-type Response = Database["public"]["Tables"]["responses"]["Row"];
 type QUESTION_TYPE = Database["public"]["Enums"]["QUESTION_TYPE"];
 type ANALYSIS_TYPE = Database["public"]["Enums"]["ANALYSIS_TYPE"];
 
@@ -18,23 +15,24 @@ export const GetAllForms = async () => {
   return forms;
 };
 
-export const GetFormById = async ({ formId }: { formId: number }) => {
+export const GetFormById = async ({ formId }: { formId: string }) => {
   const { data: form, error } = await supabase.from("forms").select("*").eq("id", formId).single();
   return form;
 };
 
-export const GetFormByProgramId = async ({ programId }: { programId: number }) => {
+export const GetFormByProgramId = async ({ programId }: { programId: string }) => {
   const { data: forms, error } = await supabase.from("forms").select("*").eq("program_id", programId);
   return forms;
 };
 
-export const GetFormByActivityId = async ({ activityId }: { activityId: number }) => {
+export const GetFormByActivityId = async ({ activityId }: { activityId: string }) => {
   const { data: forms, error } = await supabase.from("forms").select("*").eq("activity_id", activityId);
   return forms;
 };
 
-export const AddNewForm = async ({ newForm }: { newForm: Form }) => {
-  supabase.from("forms").insert(newForm);
+export const AddNewForm = async ({ newForm }: { newForm: FormInsert }) => {
+  const response = await supabase.from("forms").insert(newForm).select();
+  return response;
 };
 
 /**
@@ -45,12 +43,12 @@ export const GetAllActivities = async () => {
   return activities;
 };
 
-export const GetActivityById = async ({ activityId }: { activityId: number }) => {
+export const GetActivityById = async ({ activityId }: { activityId: string }) => {
   const { data: activity, error } = await supabase.from("activites").select("*").eq("id", activityId).single();
   return activity;
 };
 
-export const GetActivityByProgramId = async ({ programId }: { programId: number }) => {
+export const GetActivityByProgramId = async ({ programId }: { programId: string }) => {
   const { data: activities, error } = await supabase.from("activites").select("*").eq("program_id", programId);
   return activities;
 };
@@ -67,7 +65,7 @@ export const GetAllPrograms = async () => {
   return programs;
 };
 
-export const GetProgramById = async ({ programId }: { programId: number }) => {
+export const GetProgramById = async ({ programId }: { programId: string }) => {
   const { data: program, error } = await supabase.from("programs").select("*").eq("id", programId).single();
   return program;
 };
@@ -84,12 +82,12 @@ export const GetAllQuestions = async () => {
   return questions;
 };
 
-export const GetQuestionById = async ({ questionId }: { questionId: number }) => {
+export const GetQuestionById = async ({ questionId }: { questionId: string }) => {
   const { data: question, error } = await supabase.from("questions").select("*").eq("id", questionId).single();
   return question;
 };
 
-export const GetQuestionByFormId = async ({ formId }: { formId: number }) => {
+export const GetQuestionByFormId = async ({ formId }: { formId: string }) => {
   const { data: questions, error } = await supabase.from("questions").select("*").eq("form_id", formId);
   return questions;
 };
@@ -108,6 +106,10 @@ export const AddNewQuestion = async ({ newQuestion }: { newQuestion: Question })
   supabase.from("questions").insert(newQuestion);
 };
 
+export const AddAllNewQuestions = async ({ newQuestions }: { newQuestions: QuestionInsert[] }) => {
+  const { data, error } = await supabase.from("questions").insert(newQuestions).select();
+  return data;
+};
 /**
  * Response Module
  */
@@ -116,12 +118,20 @@ export const GetAllResponses = async () => {
   return responses;
 };
 
-export const GetResponseById = async ({ responseId }: { responseId: number }) => {
+export const GetResponseById = async ({ responseId }: { responseId: string }) => {
   const { data: response, error } = await supabase.from("responses").select("*").eq("id", responseId).single();
   return response;
 };
 
-export const GetResponseByQuestionId = async ({ questionId }: { questionId: number }) => {
+export const GetResponseByQuestionId = async ({ questionId }: { questionId: string }) => {
   const { data: responses, error } = await supabase.from("responses").select("*").eq("question_id", questionId);
   return responses;
+};
+
+export const AddNewResponse = async ({ newResponse }: { newResponse: Response }) => {
+  const { data, error } = await supabase.from("responses").insert(newResponse);
+};
+
+export const AddAllNewResponses = async ({ newResponses }: { newResponses: ResponseInsert[] }) => {
+  const { data, error } = await supabase.from("responses").insert(newResponses);
 };

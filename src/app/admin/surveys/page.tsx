@@ -1,14 +1,14 @@
 "use client";
-import { Button, Modal, Space, Table, Tag } from "antd";
+import { Button, Modal, Space, Spin, Table, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InboxOutlined } from "@ant-design/icons";
 
 import { useCsvDataContext } from "@/contexts/CsvDataProvider";
 import Dragger from "antd/es/upload/Dragger";
-
-const surveyData = require("@/data/surveys.json");
+import { GetAllForms } from "@/hooks/supabaseHooks";
+import { Form } from "@/types/types";
 
 const tableColumns = [
   {
@@ -16,12 +16,7 @@ const tableColumns = [
     dataIndex: "title",
     key: "title",
   },
-  {
-    title: "No. of entries",
-    dataIndex: "noOfEntries",
-    key: "noOfEntries",
-  },
-  {
+  /* {
     title: "Programs",
     dataIndex: "programs",
     key: "programs",
@@ -60,11 +55,16 @@ const tableColumns = [
         })}
       </>
     ),
-  },
+  }, */
   {
     title: "Date created",
-    dataIndex: "dateCreated",
-    key: "dateCreated",
+    dataIndex: "created_at",
+    key: "created_at",
+  },
+  {
+    title: "Last updated",
+    dataIndex: "updated_at",
+    key: "updated_at",
   },
 ];
 
@@ -74,27 +74,42 @@ export default function SurveyPage() {
   const { setCsvData } = useCsvDataContext();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [allSurveysData, setAllSurveysData] = useState<Form[]>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchSurveyData();
+  }, []);
+
+  function fetchSurveyData() {
+    setIsLoading(true);
+    GetAllForms().then((data) => {
+      if (data) {
+        setAllSurveysData(data);
+      }
+      setIsLoading(false);
+    });
+  }
+  if (isLoading) {
+    return <Spin />;
+  }
 
   return (
     <main>
       <Space direction="vertical" size="large" style={{ display: "flex" }}>
         <div className="flex justify-end">
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setDrawerOpen(true)}
-          >
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>
             Import new survey
           </Button>
         </div>
         <Table
-          dataSource={surveyData}
+          dataSource={allSurveysData}
           columns={tableColumns}
           onRow={(record, rowIndex) => {
             return {
               onClick: (event) => {
-                router.push("/surveys/plant-growing");
-              }, // click row
+                router.push(`/surveys/${record.id}`);
+              },
             };
           }}
         />
@@ -121,13 +136,8 @@ export default function SurveyPage() {
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">
-            Click or drag your csv file to this area to upload
-          </p>
-          <p className="ant-upload-hint">
-            We currently only support csv files exported from Google Forms.
-            However we are working on supporting more file types.
-          </p>
+          <p className="ant-upload-text">Click or drag your csv file to this area to upload</p>
+          <p className="ant-upload-hint">We currently only support csv files exported from Google Forms. However we are working on supporting more file types.</p>
         </Dragger>
       </Modal>
     </main>
