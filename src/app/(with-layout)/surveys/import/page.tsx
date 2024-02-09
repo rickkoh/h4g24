@@ -7,13 +7,13 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { usePapaParse } from "react-papaparse";
 import { AddAllNewQuestions, AddAllNewResponses, AddNewForm } from "@/hooks/supabaseHooks";
-import { ANALYSIS_TYPE, QUESTION_TYPE, FormInsert, QuestionInsert, ResponseInsert } from "@/types/types";
+import { ANALYSIS_TYPE, QUESTION_TYPE, SurveyInsert, QuestionInsert, ResponseInsert } from "@/types/types";
 
 export default function Import() {
   const router = useRouter();
   const { readString } = usePapaParse();
   const [isLoading, setIsLoading] = useState(false);
-  const [formInsertDetails, setFormInsertDetails] = useState<FormInsert>();
+  const [formInsertDetails, setFormInsertDetails] = useState<SurveyInsert>();
   const [surveyDataSource, setSurveyDataSource] = useState<QuestionInsert[]>([]);
   const [responsesInsertDetails, setResponsesInsertDetails] = useState<ResponseInsert[]>([]);
   const { csvData } = useCsvDataContext();
@@ -150,7 +150,7 @@ export default function Import() {
   }
 
   async function createForm(name: string) {
-    const form: FormInsert = {
+    const form: SurveyInsert = {
       title: name,
       id: crypto.randomUUID(),
       program_id: null,

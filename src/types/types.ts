@@ -1,9 +1,11 @@
 import { Database } from "./supabase";
 
-export type Form = Database["public"]["Tables"]["forms"]["Row"];
-export type FormInsert = Database["public"]["Tables"]["forms"]["Insert"];
+export type Survey = Database["public"]["Tables"]["forms"]["Row"];
+export type SurveyInsert = Database["public"]["Tables"]["forms"]["Insert"];
 export type Activity = Database["public"]["Tables"]["activities"]["Row"];
+export type ActivityInsert = Database["public"]["Tables"]["activities"]["Insert"];
 export type Program = Database["public"]["Tables"]["programs"]["Row"];
+export type ProgramInsert = Database["public"]["Tables"]["programs"]["Insert"];
 export type Question = Database["public"]["Tables"]["questions"]["Row"];
 export type QuestionInsert = Database["public"]["Tables"]["questions"]["Insert"];
 export type Response = Database["public"]["Tables"]["responses"]["Row"];
