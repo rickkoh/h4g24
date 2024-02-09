@@ -4,6 +4,7 @@ import {
   Breadcrumb,
   Layout,
   Menu,
+  Skeleton,
   Space,
   Typography,
   theme,
@@ -136,7 +137,7 @@ export default function NavBar(props: PropsWithChildren) {
           </Layout>
         </Layout>
       ) : (
-        <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} />
+        <Skeleton active />
       )}
     </>
   );
