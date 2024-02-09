@@ -1,13 +1,26 @@
 "use client";
 import { useCsvDataContext } from "@/contexts/CsvDataProvider";
-import { getColumnsFromJson, groupResponsesByQuestion } from "@/utility/DataConverter";
+import {
+  getColumnsFromJson,
+  groupResponsesByQuestion,
+} from "@/utility/DataConverter";
 import { Button, Empty, Form, Select, Space, Table, message, Spin } from "antd";
 import Column from "antd/es/table/Column";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { usePapaParse } from "react-papaparse";
-import { AddAllNewQuestions, AddAllNewResponses, AddNewForm } from "@/hooks/supabaseHooks";
-import { ANALYSIS_TYPE, QUESTION_TYPE, SurveyInsert, QuestionInsert, ResponseInsert } from "@/types/types";
+import {
+  AddAllNewQuestions,
+  AddAllNewResponses,
+  AddNewForm,
+} from "@/hooks/supabaseHooks";
+import {
+  ANALYSIS_TYPE,
+  QUESTION_TYPE,
+  SurveyInsert,
+  QuestionInsert,
+  ResponseInsert,
+} from "@/types/types";
 import supabase from "@/hooks/supabaseConfig";
 import { useAuthContext } from "@/contexts/AuthProvider";
 
@@ -17,13 +30,19 @@ export default function Import() {
   const { readString } = usePapaParse();
   const [isLoading, setIsLoading] = useState(false);
   const [formInsertDetails, setFormInsertDetails] = useState<SurveyInsert>();
-  const [surveyDataSource, setSurveyDataSource] = useState<QuestionInsert[]>([]);
-  const [responsesInsertDetails, setResponsesInsertDetails] = useState<ResponseInsert[]>([]);
+  const [surveyDataSource, setSurveyDataSource] = useState<QuestionInsert[]>(
+    []
+  );
+  const [responsesInsertDetails, setResponsesInsertDetails] = useState<
+    ResponseInsert[]
+  >([]);
   const { csvData } = useCsvDataContext();
   const combinedData = useMemo(() => {
     return responsesInsertDetails.map((response) => ({
       ...response,
-      question: surveyDataSource.filter((question) => question.id === response.question_id).map((question) => question.text)[0],
+      question: surveyDataSource
+        .filter((question) => question.id === response.question_id)
+        .map((question) => question.text)[0],
     }));
   }, [surveyDataSource, responsesInsertDetails]);
 
@@ -53,10 +72,17 @@ export default function Import() {
               // one row is one object
               const result = results.data;
 
-              const questionDataSource = generateQuestionDataSource(result as any, formResult.id);
+              const questionDataSource = generateQuestionDataSource(
+                result as any,
+                formResult.id
+              );
               setSurveyDataSource(questionDataSource);
               // the column is the key, with an array of all the responses
-              const groupedResult = groupResponsesByQuestion(result as any, questionDataSource, session?.user.id!);
+              const groupedResult = groupResponsesByQuestion(
+                result as any,
+                questionDataSource,
+                session?.user.id!
+              );
               setResponsesInsertDetails(groupedResult);
 
               resolve(true); // Resolve the promise after all operations are complete
@@ -73,7 +99,10 @@ export default function Import() {
     }
   }
 
-  function generateQuestionDataSource(result: { [key: string]: string }[], formId: string | undefined) {
+  function generateQuestionDataSource(
+    result: { [key: string]: string }[],
+    formId: string | undefined
+  ) {
     const questionHeaders = getColumnsFromJson(result);
     // Get all responses belonging to a question
     const responses = questionHeaders.map((header) => {
@@ -141,8 +170,12 @@ export default function Import() {
     }
     try {
       const addFormResponse = await AddNewForm({ newForm: formInsertDetails });
-      const addQuestionResponse = await AddAllNewQuestions({ newQuestions: surveyDataSource });
-      const addResponseResponse = await AddAllNewResponses({ newResponses: responsesInsertDetails });
+      const addQuestionResponse = await AddAllNewQuestions({
+        newQuestions: surveyDataSource,
+      });
+      const addResponseResponse = await AddAllNewResponses({
+        newResponses: responsesInsertDetails,
+      });
 
       message.success("Form imported successfully");
       router.push("/surveys");
@@ -179,7 +212,12 @@ export default function Import() {
         <Form onSubmitCapture={submit} layout="vertical">
           <Form.Item>
             <Table dataSource={surveyDataSource} pagination={false}>
-              <Column title="Question" dataIndex="text" key="text" width={"100%"} />
+              <Column
+                title="Question"
+                dataIndex="text"
+                key="text"
+                width={"100%"}
+              />
               <Column
                 title="Question Type"
                 dataIndex="question_type"
@@ -196,13 +234,19 @@ export default function Import() {
                       }}
                       className="!w-64"
                       options={[
-                        { value: QUESTION_TYPE.TEXT_ANSWER, label: "Text Answer" },
+                        {
+                          value: QUESTION_TYPE.TEXT_ANSWER,
+                          label: "Text Answer",
+                        },
                         {
                           value: QUESTION_TYPE.MULTIPLE_CHOICE,
                           label: "Multiple Choice",
                         },
                         { value: QUESTION_TYPE.CHECKBOX, label: "Checkbox" },
-                        { value: QUESTION_TYPE.LINEAR_SCALE, label: "Linear Scale" },
+                        {
+                          value: QUESTION_TYPE.LINEAR_SCALE,
+                          label: "Linear Scale",
+                        },
                       ]}
                     />
                   );
@@ -224,7 +268,7 @@ export default function Import() {
                       }}
                       className="!w-64"
                       options={[
-                        { value: "", label: "None" },
+                        { value: null, label: "None" },
                         {
                           value: ANALYSIS_TYPE.SENTIMENTAL,
                           label: "Sentimental Analysis",
@@ -245,7 +289,15 @@ export default function Import() {
             </Table>
           </Form.Item>
           <Form.Item>
-            <Select size="large" mode="multiple" allowClear style={{ width: "100%" }} placeholder="Activities" options={[]} notFoundContent={<Empty description="No activities found" />} />
+            <Select
+              size="large"
+              mode="multiple"
+              allowClear
+              style={{ width: "100%" }}
+              placeholder="Activities"
+              options={[]}
+              notFoundContent={<Empty description="No activities found" />}
+            />
           </Form.Item>
           <Table dataSource={combinedData} pagination={false}>
             <Column title="Question" dataIndex="question" key="question" />
