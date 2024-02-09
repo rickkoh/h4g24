@@ -4,14 +4,14 @@ import {
   Breadcrumb,
   Layout,
   Menu,
-  Skeleton,
   Space,
+  Spin,
   Typography,
   theme,
 } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
-import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import { PropsWithChildren } from "react";
 import {
   TrophyOutlined,
   RocketOutlined,
@@ -22,31 +22,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { CsvDataProvider } from "@/contexts/CsvDataProvider";
 import Link from "next/link";
 import { Logo } from "./Logo";
-import supabase from "@/hooks/supabaseConfig";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { Session } from "@supabase/supabase-js";
+import { useAuthContext } from "@/contexts/AuthProvider";
 
 export default function NavBar(props: PropsWithChildren) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (!session) {
-        router.push("/login");
-      }
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+  const { session } = useAuthContext();
 
   const {
     token: { colorBgContainer },
@@ -77,7 +59,9 @@ export default function NavBar(props: PropsWithChildren) {
                 OCOTOFORM
               </Typography.Title>
             </Space>
-            <Avatar style={{ backgroundColor: "#f12333" }}>U</Avatar>
+            <Avatar style={{ backgroundColor: "#123f33" }}>
+              {session.user.email?.charAt(0).toUpperCase()}
+            </Avatar>
           </Header>
           <Layout>
             <Sider collapsible>
@@ -137,7 +121,7 @@ export default function NavBar(props: PropsWithChildren) {
           </Layout>
         </Layout>
       ) : (
-        <Skeleton active />
+        <Spin fullscreen />
       )}
     </>
   );
