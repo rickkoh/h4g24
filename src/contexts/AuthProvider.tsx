@@ -23,7 +23,6 @@ export const AuthProvider = (props: PropsWithChildren) => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      console.log(session);
       if (!session) {
         router.push("/login");
       }
