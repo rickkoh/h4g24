@@ -39,8 +39,10 @@ export default function NewActivityForm({ onClose }: { onClose: Dispatch<SetStat
       created_by: session?.user.id,
     };
     AddNewActivity({ newActivity });
-    for (const survey of activity.surveys) {
-      LinkFormToActivity({ formId: survey, activityId: newActivityId });
+    if (activity.surveys) {
+      for (const survey of activity.surveys) {
+        LinkFormToActivity({ formId: survey, activityId: newActivityId });
+      }
     }
     fetchData();
   };

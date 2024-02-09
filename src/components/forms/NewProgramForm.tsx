@@ -38,10 +38,11 @@ export default function NewProgramForm({ onClose }: { onClose: Dispatch<SetState
       description: program.description,
       created_by: session?.user.id,
     };
-    console.log(program);
     AddNewProgram({ newProgram });
-    for (const activity of program.activities) {
-      LinkActivityToProgram({ programId: newProgramId, activityId: activity });
+    if (program.activities) {
+      for (const activity of program.activities) {
+        LinkActivityToProgram({ programId: newProgramId, activityId: activity });
+      }
     }
     fetchData();
   };

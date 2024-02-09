@@ -44,13 +44,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "activities_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
           }
         ]
       }
@@ -84,24 +77,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "forms_activity_id_fkey"
-            columns: ["activity_id"]
-            isOneToOne: false
-            referencedRelation: "activities"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "forms_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "forms_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
             referencedColumns: ["id"]
           }
         ]
@@ -179,13 +158,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "questions_form_id_fkey"
-            columns: ["form_id"]
-            isOneToOne: false
-            referencedRelation: "forms"
-            referencedColumns: ["id"]
           }
         ]
       }
@@ -235,7 +207,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      ANALYSIS_TYPE: "SENTIMENTAL" | "SUMMARY" | "KEYWORD"
+      ANALYSIS_TYPE: "SENTIMENTAL" | "SUMMARY" | "KEYWORD" | "NONE"
       QUESTION_TYPE:
         | "TEXT_ANSWER"
         | "MULTIPLE_CHOICE"

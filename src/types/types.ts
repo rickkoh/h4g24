@@ -15,6 +15,7 @@ export enum ANALYSIS_TYPE {
   SENTIMENTAL = "SENTIMENTAL",
   SUMMARY = "SUMMARY",
   KEYWORD = "KEYWORD",
+  NONE = "NONE",
 }
 
 export enum QUESTION_TYPE {
