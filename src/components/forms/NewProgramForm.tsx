@@ -1,4 +1,5 @@
 "use client";
+import { useAuthContext } from "@/contexts/AuthProvider";
 import { AddNewProgram, GetAllActivities, LinkActivityToProgram } from "@/hooks/supabaseHooks";
 import { Activity, ProgramInsert } from "@/types/types";
 import { Button, Empty, Form, Input, Select, Typography } from "antd";
@@ -10,6 +11,7 @@ export default function NewProgramForm({ onClose }: { onClose: Dispatch<SetState
   const [form] = Form.useForm();
   const [formLayout, setFormLayout] = useState<LayoutType>("horizontal");
   const [activites, setActivities] = useState<Activity[]>([]);
+  const { session } = useAuthContext();
 
   useEffect(() => {
     fetchData();
@@ -34,6 +36,7 @@ export default function NewProgramForm({ onClose }: { onClose: Dispatch<SetState
       id: newProgramId,
       title: program.title,
       description: program.description,
+      created_by: session?.user.id,
     };
     console.log(program);
     AddNewProgram({ newProgram });

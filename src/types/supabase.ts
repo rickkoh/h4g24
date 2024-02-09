@@ -12,6 +12,7 @@ export type Database = {
       activities: {
         Row: {
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           program_id: string | null
@@ -20,6 +21,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           program_id?: string | null
@@ -28,6 +30,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           program_id?: string | null
@@ -35,6 +38,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "activities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "activities_program_id_fkey"
             columns: ["program_id"]
@@ -48,6 +58,7 @@ export type Database = {
         Row: {
           activity_id: string | null
           created_at: string
+          created_by: string | null
           id: string
           program_id: string | null
           title: string | null
@@ -56,6 +67,7 @@ export type Database = {
         Insert: {
           activity_id?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           program_id?: string | null
           title?: string | null
@@ -64,6 +76,7 @@ export type Database = {
         Update: {
           activity_id?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           program_id?: string | null
           title?: string | null
@@ -78,6 +91,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "forms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "forms_program_id_fkey"
             columns: ["program_id"]
             isOneToOne: false
@@ -89,6 +109,7 @@ export type Database = {
       programs: {
         Row: {
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           title: string | null
@@ -96,6 +117,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           title?: string | null
@@ -103,17 +125,27 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           title?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "programs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       questions: {
         Row: {
           analysis_type: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
           created_at: string
+          created_by: string | null
           form_id: string | null
           id: string
           question_type: Database["public"]["Enums"]["QUESTION_TYPE"]
@@ -123,6 +155,7 @@ export type Database = {
         Insert: {
           analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
           created_at?: string
+          created_by?: string | null
           form_id?: string | null
           id?: string
           question_type: Database["public"]["Enums"]["QUESTION_TYPE"]
@@ -132,6 +165,7 @@ export type Database = {
         Update: {
           analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
           created_at?: string
+          created_by?: string | null
           form_id?: string | null
           id?: string
           question_type?: Database["public"]["Enums"]["QUESTION_TYPE"]
@@ -139,6 +173,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "questions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "questions_form_id_fkey"
             columns: ["form_id"]
@@ -150,27 +191,41 @@ export type Database = {
       }
       responses: {
         Row: {
+          analysis_output: string | null
           answer: string
           created_at: string
+          created_by: string | null
           id: string
           question_id: string
           updated_at: string
         }
         Insert: {
+          analysis_output?: string | null
           answer: string
           created_at?: string
+          created_by?: string | null
           id?: string
           question_id?: string
           updated_at?: string
         }
         Update: {
+          analysis_output?: string | null
           answer?: string
           created_at?: string
+          created_by?: string | null
           id?: string
           question_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "responses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

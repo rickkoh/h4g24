@@ -1,4 +1,5 @@
 "use client";
+import { useAuthContext } from "@/contexts/AuthProvider";
 import { AddNewActivity, GetAllForms, LinkFormToActivity } from "@/hooks/supabaseHooks";
 import { ActivityInsert, Survey } from "@/types/types";
 import { Button, Empty, Form, Input, Select, Typography } from "antd";
@@ -10,6 +11,7 @@ export default function NewActivityForm({ onClose }: { onClose: Dispatch<SetStat
   const [form] = Form.useForm();
   const [formLayout, setFormLayout] = useState<LayoutType>("horizontal");
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const { session } = useAuthContext();
 
   useEffect(() => {
     fetchData();
@@ -34,6 +36,7 @@ export default function NewActivityForm({ onClose }: { onClose: Dispatch<SetStat
       id: newActivityId,
       title: activity.title,
       description: activity.description,
+      created_by: session?.user.id,
     };
     AddNewActivity({ newActivity });
     for (const survey of activity.surveys) {

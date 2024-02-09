@@ -8,9 +8,12 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { usePapaParse } from "react-papaparse";
 import { AddAllNewQuestions, AddAllNewResponses, AddNewForm } from "@/hooks/supabaseHooks";
 import { ANALYSIS_TYPE, QUESTION_TYPE, SurveyInsert, QuestionInsert, ResponseInsert } from "@/types/types";
+import supabase from "@/hooks/supabaseConfig";
+import { useAuthContext } from "@/contexts/AuthProvider";
 
 export default function Import() {
   const router = useRouter();
+  const { session } = useAuthContext();
   const { readString } = usePapaParse();
   const [isLoading, setIsLoading] = useState(false);
   const [formInsertDetails, setFormInsertDetails] = useState<SurveyInsert>();
@@ -53,7 +56,7 @@ export default function Import() {
               const questionDataSource = generateQuestionDataSource(result as any, formResult.id);
               setSurveyDataSource(questionDataSource);
               // the column is the key, with an array of all the responses
-              const groupedResult = groupResponsesByQuestion(result as any, questionDataSource);
+              const groupedResult = groupResponsesByQuestion(result as any, questionDataSource, session?.user.id!);
               setResponsesInsertDetails(groupedResult);
 
               resolve(true); // Resolve the promise after all operations are complete
@@ -87,6 +90,7 @@ export default function Import() {
         question_type: questionType,
         analysis_type: null,
         form_id: formId,
+        created_by: session?.user.id,
       };
       data.push(question);
     }
@@ -155,11 +159,10 @@ export default function Import() {
       id: crypto.randomUUID(),
       program_id: null,
       activity_id: null,
+      created_by: session?.user.id,
     };
     return form;
   }
-
-  async function createResponses() {}
 
   useEffect(() => {
     if (csvData) {
