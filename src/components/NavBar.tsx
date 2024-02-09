@@ -27,6 +27,7 @@ import { LogoutOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
+import Image from "next/image";
 
 export default function NavBar(props: PropsWithChildren) {
   const pathname = usePathname();
@@ -49,19 +50,11 @@ export default function NavBar(props: PropsWithChildren) {
               justifyContent: "space-between",
               background: colorBgContainer,
               padding: "0 20px",
+              height: "80px",
             }}
           >
             <Space>
-              <Logo />
-              <Typography.Title
-                style={{
-                  fontSize: "inherit",
-                  marginBottom: 0,
-                  fontWeight: 700,
-                }}
-              >
-                OCOTOFORM
-              </Typography.Title>
+              <Image src="/logo.png" alt="logo" width={160} height={160} />
             </Space>
             <Popover
               placement="bottomRight"
