@@ -1,9 +1,16 @@
 "use client";
 import {
+  ProfileOutlined,
+  RocketOutlined,
+  TrophyOutlined,
+} from "@ant-design/icons";
+import {
   Avatar,
   Breadcrumb,
+  Button,
   Layout,
   Menu,
+  Popover,
   Space,
   Spin,
   Typography,
@@ -12,17 +19,14 @@ import {
 import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
 import { PropsWithChildren } from "react";
-import {
-  TrophyOutlined,
-  RocketOutlined,
-  ProfileOutlined,
-} from "@ant-design/icons";
 
-import { usePathname, useRouter } from "next/navigation";
-import { CsvDataProvider } from "@/contexts/CsvDataProvider";
-import Link from "next/link";
-import { Logo } from "./Logo";
 import { useAuthContext } from "@/contexts/AuthProvider";
+import { CsvDataProvider } from "@/contexts/CsvDataProvider";
+import supabase from "@/hooks/supabaseConfig";
+import { LogoutOutlined } from "@ant-design/icons";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Logo } from "./Logo";
 
 export default function NavBar(props: PropsWithChildren) {
   const pathname = usePathname();
@@ -59,9 +63,50 @@ export default function NavBar(props: PropsWithChildren) {
                 OCOTOFORM
               </Typography.Title>
             </Space>
-            <Avatar style={{ backgroundColor: "#123f33" }}>
-              {session.user.email?.charAt(0).toUpperCase()}
-            </Avatar>
+            <Popover
+              placement="bottomRight"
+              content={
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Typography.Text
+                    strong
+                    style={{
+                      padding: "12px 20px",
+                    }}
+                  >
+                    {session.user.email}
+                  </Typography.Text>
+                  <div
+                    style={{
+                      borderTop: "1px solid #d9d9d9",
+                      padding: "4px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                    }}
+                  >
+                    <Button
+                      style={{ textAlign: "left" }}
+                      icon={<LogoutOutlined />}
+                      type="text"
+                      danger
+                      block
+                      onClick={() => supabase.auth.signOut()}
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+              }
+            >
+              <Avatar style={{ backgroundColor: "#123f33" }}>
+                {session.user.email?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Popover>
           </Header>
           <Layout>
             <Sider collapsible>
