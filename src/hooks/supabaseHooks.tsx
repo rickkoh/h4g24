@@ -35,8 +35,7 @@ export const AddNewForm = async ({ newForm }: { newForm: SurveyInsert }) => {
 };
 
 export const LinkFormToActivity = async ({ formId, activityId }: { formId: string; activityId: string }) => {
-  console.log(formId, activityId);
-  const response = await supabase.from("forms").update({ activity_id: activityId }).eq("id", formId).select();
+  const response = await supabase.from("forms").update({ activity_id: activityId }).eq("id", formId);
   return response;
 };
 
@@ -77,11 +76,12 @@ export const GetProgramById = async ({ programId }: { programId: string }) => {
 };
 
 export const AddNewProgram = async ({ newProgram }: { newProgram: ProgramInsert }) => {
-  supabase.from("programs").insert(newProgram);
+  const { data, error } = await supabase.from("programs").insert(newProgram);
+  return data;
 };
 
 export const LinkActivityToProgram = async ({ programId, activityId }: { programId: string; activityId: string }) => {
-  const response = await supabase.from("activities").update({ program_id: programId }).eq("id", activityId).select();
+  const response = await supabase.from("activities").update({ program_id: programId }).eq("id", activityId);
   return response;
 };
 
@@ -114,7 +114,8 @@ export const GetQuestionByAnalysisType = async ({ analysisType }: { analysisType
 };
 
 export const AddNewQuestion = async ({ newQuestion }: { newQuestion: Question }) => {
-  supabase.from("questions").insert(newQuestion);
+  const { data, error } = await supabase.from("questions").insert(newQuestion);
+  return data;
 };
 
 export const AddAllNewQuestions = async ({ newQuestions }: { newQuestions: QuestionInsert[] }) => {
