@@ -8,7 +8,6 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { usePapaParse } from "react-papaparse";
 import { AddAllNewQuestions, AddAllNewResponses, AddNewForm } from "@/hooks/supabaseHooks";
 import { ANALYSIS_TYPE, QUESTION_TYPE, FormInsert, QuestionInsert, ResponseInsert } from "@/types/types";
-import { set } from "react-hook-form";
 
 export default function Import() {
   const router = useRouter();
@@ -50,8 +49,8 @@ export default function Import() {
             try {
               // one row is one object
               const result = results.data;
-              const questionHeaders = getColumnsFromJson(result);
-              const questionDataSource = generateQuestionDataSource(questionHeaders, formResult.id);
+
+              const questionDataSource = generateQuestionDataSource(result as any, formResult.id);
               setSurveyDataSource(questionDataSource);
               // the column is the key, with an array of all the responses
               const groupedResult = groupResponsesByQuestion(result as any, questionDataSource);
@@ -65,25 +64,68 @@ export default function Import() {
         });
       });
     } catch (error) {
-      console.error("An error occurred:", error);
+      message.error("Unable to process file. Please try again.");
     } finally {
       setIsLoading(false); // Ensure loading is set to false when operation is complete or if an error occurs
     }
   }
 
-  function generateQuestionDataSource(questionHeaders: { [key: string]: string }[], formId: string | undefined) {
+  function generateQuestionDataSource(result: { [key: string]: string }[], formId: string | undefined) {
+    const questionHeaders = getColumnsFromJson(result);
+    // Get all responses belonging to a question
+    const responses = questionHeaders.map((header) => {
+      const responses = result.map((row) => row[header.title]);
+      return responses;
+    });
+
     const data: QuestionInsert[] = [];
     for (let i = 1; i < questionHeaders.length; i++) {
+      const questionType = detectQuestionType(responses[i]);
       const question: QuestionInsert = {
         id: crypto.randomUUID(),
         text: questionHeaders[i].title,
-        question_type: QUESTION_TYPE.TEXT_ANSWER, // to change
+        question_type: questionType,
         analysis_type: null,
         form_id: formId,
       };
       data.push(question);
     }
     return data;
+  }
+
+  // Algorithm to detect question type based on response
+  function detectQuestionType(responseObj: string[]): QUESTION_TYPE {
+    // Check if all responses are numeric, implying a LINEAR_SCALE
+    if (responseObj.every((response) => /^\d+$/.test(response))) {
+      return QUESTION_TYPE.LINEAR_SCALE;
+    }
+    // Check if any response contains a semicolon, implying at least one CHECKBOX response
+    else if (responseObj.some((response) => response.includes(";"))) {
+      return QUESTION_TYPE.CHECKBOX;
+    }
+    // Default to TEXT_ANSWER if no specific patterns are detected
+    else {
+      const responseCount = new Map();
+      responseObj.forEach((response) => {
+        responseCount.set(response, (responseCount.get(response) || 0) + 1);
+      });
+      const totalResponses = responseObj.length;
+      if (totalResponses < 5) {
+        return QUESTION_TYPE.TEXT_ANSWER;
+      }
+      let maxFrequency = 0;
+      responseCount.forEach((count) => {
+        if (count > maxFrequency) {
+          maxFrequency = count;
+        }
+      });
+      const threshold = 0.25;
+      if (maxFrequency / totalResponses > threshold) {
+        return QUESTION_TYPE.MULTIPLE_CHOICE;
+      } else {
+        return QUESTION_TYPE.TEXT_ANSWER;
+      }
+    }
   }
 
   async function submit(e: FormEvent<HTMLFormElement>) {
