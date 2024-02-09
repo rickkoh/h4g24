@@ -1,8 +1,13 @@
-/** @type {import('next').NextConfig} */
+// @ts-check
+
+/**
+ * @type {import('next').NextConfig}
+ */
 const nextConfig = {
+  /* config options here */
   env: {
     SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    SUPABASE_KEY: process.envNEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
   eslint: {
     // Warning: This allows production builds to successfully complete even if
