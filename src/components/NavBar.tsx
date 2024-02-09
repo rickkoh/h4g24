@@ -35,7 +35,7 @@ export default function NavBar(props: PropsWithChildren) {
   const { session } = useAuthContext();
 
   const {
-    token: { colorBgContainer },
+    token: { colorBgContainer, green4 },
   } = theme.useToken();
 
   return (
@@ -109,9 +109,9 @@ export default function NavBar(props: PropsWithChildren) {
             </Popover>
           </Header>
           <Layout>
-            <Sider collapsible>
+            <Sider collapsible theme="light">
               <Menu
-                theme="dark"
+                theme="light"
                 mode="inline"
                 selectedKeys={[pathname.split("/")[1]]}
                 items={[
