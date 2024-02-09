@@ -1,7 +1,6 @@
-import { printTreeView } from "next/dist/build/utils";
 import { Database } from "../types/supabase";
 import supabase from "./supabaseConfig";
-import { Activity, FormInsert, Program, Question, QuestionInsert, Response, ResponseInsert } from "../types/types";
+import { Activity, ActivityInsert, SurveyInsert, Program, Question, QuestionInsert, Response, ResponseInsert, ProgramInsert } from "../types/types";
 
 // Types
 type QUESTION_TYPE = Database["public"]["Enums"]["QUESTION_TYPE"];
@@ -30,8 +29,14 @@ export const GetFormByActivityId = async ({ activityId }: { activityId: string }
   return forms;
 };
 
-export const AddNewForm = async ({ newForm }: { newForm: FormInsert }) => {
+export const AddNewForm = async ({ newForm }: { newForm: SurveyInsert }) => {
   const response = await supabase.from("forms").insert(newForm).select();
+  return response;
+};
+
+export const LinkFormToActivity = async ({ formId, activityId }: { formId: string; activityId: string }) => {
+  console.log(formId, activityId);
+  const response = await supabase.from("forms").update({ activity_id: activityId }).eq("id", formId).select();
   return response;
 };
 
@@ -39,22 +44,23 @@ export const AddNewForm = async ({ newForm }: { newForm: FormInsert }) => {
  * Activity Module
  */
 export const GetAllActivities = async () => {
-  const { data: activities, error } = await supabase.from("activites").select("*");
+  const { data: activities, error } = await supabase.from("activities").select("*");
   return activities;
 };
 
 export const GetActivityById = async ({ activityId }: { activityId: string }) => {
-  const { data: activity, error } = await supabase.from("activites").select("*").eq("id", activityId).single();
+  const { data: activity, error } = await supabase.from("activities").select("*").eq("id", activityId).single();
   return activity;
 };
 
 export const GetActivityByProgramId = async ({ programId }: { programId: string }) => {
-  const { data: activities, error } = await supabase.from("activites").select("*").eq("program_id", programId);
+  const { data: activities, error } = await supabase.from("activities").select("*").eq("program_id", programId);
   return activities;
 };
 
-export const AddNewActivity = async ({ newActivity }: { newActivity: Activity }) => {
-  supabase.from("activites").insert(newActivity);
+export const AddNewActivity = async ({ newActivity }: { newActivity: ActivityInsert }) => {
+  const { data, error } = await supabase.from("activities").insert(newActivity);
+  return data;
 };
 
 /**
@@ -70,8 +76,13 @@ export const GetProgramById = async ({ programId }: { programId: string }) => {
   return program;
 };
 
-export const AddNewProgram = async ({ newProgram }: { newProgram: Program }) => {
+export const AddNewProgram = async ({ newProgram }: { newProgram: ProgramInsert }) => {
   supabase.from("programs").insert(newProgram);
+};
+
+export const LinkActivityToProgram = async ({ programId, activityId }: { programId: string; activityId: string }) => {
+  const response = await supabase.from("activities").update({ program_id: programId }).eq("id", activityId).select();
+  return response;
 };
 
 /**

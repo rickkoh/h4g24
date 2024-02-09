@@ -13,7 +13,7 @@ export function getColumnsFromJson(data: any) {
   return columns;
 }
 
-export function groupResponsesByQuestion(data: { [key: string]: string }[], questions: QuestionInsert[]): ResponseInsert[] {
+export function groupResponsesByQuestion(data: { [key: string]: string }[], questions: QuestionInsert[], user_id: string): ResponseInsert[] {
   const groupedResponses: ResponseInsert[] = [];
   data.forEach((response) => {
     Object.keys(response).forEach((key) => {
@@ -27,6 +27,7 @@ export function groupResponsesByQuestion(data: { [key: string]: string }[], ques
             answer: response[key],
             created_at: timestamp,
             updated_at: timestamp,
+            created_by: user_id,
           });
         }
       }

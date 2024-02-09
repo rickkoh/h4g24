@@ -8,7 +8,7 @@ import { InboxOutlined } from "@ant-design/icons";
 import { useCsvDataContext } from "@/contexts/CsvDataProvider";
 import Dragger from "antd/es/upload/Dragger";
 import { GetAllForms } from "@/hooks/supabaseHooks";
-import { Form } from "@/types/types";
+import { Survey } from "@/types/types";
 
 const tableColumns = [
   {
@@ -74,7 +74,7 @@ export default function SurveyPage() {
   const { setCsvData } = useCsvDataContext();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [allSurveysData, setAllSurveysData] = useState<Form[]>();
+  const [allSurveysData, setAllSurveysData] = useState<Survey[]>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
