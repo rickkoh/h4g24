@@ -1,13 +1,13 @@
 import { pipeline } from "@xenova/transformers";
 
-class ClassificationPipeline {
+class SentimentPipeline {
     static task = "sentiment-analysis";
     static model = 'Xenova/distilbert-base-uncased-finetuned-sst-2-english';
     static instance = null;
 
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
-            this.instance = pipeline(this.task, this.model, { progress_callback });
+            this.instance = await pipeline(this.task, this.model, { progress_callback });
         }
 
         return this.instance;
@@ -19,4 +19,4 @@ class ClassificationPipeline {
     }
 }
 
-export default ClassificationPipeline;
+export default SentimentPipeline;

@@ -1,10 +1,10 @@
 import TextToTextClass from "./TextToText.js";
 
 class SummaryPipeline {
-    starting_prompt = "Summarise all the following text and provide the trend that answer 'what do most people say?' within 20 to 30 words"
 
     static async trend(question, texts) {
-        let input = this.starting_prompt + "\n"
+        const starting_prompt = `Summarise all the following text and provide the trend that answers the question '${question}' within 20 to 30 words`
+        let input = starting_prompt + "\n"
         for (const text of texts) {
             input += text;
             input += "\n"
