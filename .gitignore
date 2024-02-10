@@ -36,3 +36,10 @@ yarn-error.log*
 next-env.d.ts
 
 .env
+# Default ignored files
+shelf/
+workspace.xml
+# Editor-based HTTP Client requests
+httpRequests/
+
+.idea
