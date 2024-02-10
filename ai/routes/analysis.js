@@ -2,12 +2,13 @@ import express from "express";
 import supabase from "../utils/supabase.js";
 import ClassificationPipeline from "../utils/ClassificationPipeline.js";
 import KeywordPipeline from "../utils/KeywordPipeline.js";
+import LlamaClass from "../utils/TextToText.js";
 const router = express.Router();
 
 const ANALYSIS_TYPE = ["SENTIMENTAL", "SUMMARY", "KEYWORD"];
 
 /* PATCH individual analysis  */
-router.put('/responses/id/:id', async function(req, res, next) {
+router.put('/responses/id/:id', async function(req, res) {
     const { id } = req.params;
 
     const { data, error } = await supabase.from("responses").select(`
@@ -37,20 +38,15 @@ router.put('/responses/id/:id', async function(req, res, next) {
     switch ( analysis_type ) {
         case null:
         case "NONE":
+        case ANALYSIS_TYPE[1]:
+        case ANALYSIS_TYPE[2]:
             res.status(200).send("There is nothing to analyse");
             return;
         case ANALYSIS_TYPE[0]:
-            const classifier = await ClassificationPipeline.getInstance();
-            response = await classifier(answer);
-            break;
-        case ANALYSIS_TYPE[1]:
-            // Summary cannot be performed on individual response
-            break;
-        case ANALYSIS_TYPE[2]:
-            // Keyword won't be performed on individual response
+            response = await ClassificationPipeline.output(answer);
             break;
     }
-    res.status(200).send("Response updated");
+    res.status(200).send(response);
 });
 
 
@@ -85,8 +81,7 @@ router.put('/questions/id/:id', async function(req, res) {
             res.status(200).send("There is nothing to analyse");
             return;
         case ANALYSIS_TYPE[0]:
-            const classifier = await ClassificationPipeline.getInstance();
-            response = await classifier(answer);
+            response = await ClassificationPipeline.output(text);
             break;
         case ANALYSIS_TYPE[1]:
 
@@ -135,8 +130,7 @@ router.put('/forms/id/:id', async function(req, res) {
                 case "NONE":
                     continue
                 case ANALYSIS_TYPE[0]:
-                    const classifier = await ClassificationPipeline.getInstance();
-                    response = await classifier(answer);
+                    response = await ClassificationPipeline.output(text);
                     break;
                 case ANALYSIS_TYPE[1]:
                     break;
@@ -154,6 +148,12 @@ router.post("/chatgpt", async function(req, res) {
     const { body } = req;
     const { data } = body;
     res.status(200).send(await KeywordPipeline.identify([data]));
+})
+
+router.post("/llama", async function(req, res) {
+    const { body } = req;
+    const { data } = body;
+    res.status(200).send(await LlamaClass.sendText(data));
 })
 
 export default router;

@@ -1,4 +1,4 @@
-import ChatGPTClass from "./chatgpt.js";
+import TextToTextClass from "./TextToText.js";
 
 class KeywordPipeline {
     static starting_prompt = "Identify all keywords and give a strength value in decimals from 0 to 1 for each keyword in the following format " +
@@ -11,7 +11,7 @@ class KeywordPipeline {
             input += "\n"
         }
 
-        const response = await ChatGPTClass.sendText(input);
+        const response = await TextToTextClass.sendText(input);
         const keywords = response.split(",")
         const valid = [];
         for (const keyword of keywords) {

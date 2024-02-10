@@ -13,8 +13,6 @@ class ChatGPTClass {
     }
 
     static async sendText(text) {
-        const split_length = 4000;
-        const num_parts = Math.ceil(text.length / split_length);
         let response = ""
         const chatGPT = this.getInstance();
         response = await chatGPT.sendMessage(text);

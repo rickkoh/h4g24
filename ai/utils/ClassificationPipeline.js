@@ -1,4 +1,4 @@
-import { pipeline, env } from "@xenova/transformers";
+import { pipeline } from "@xenova/transformers";
 
 class ClassificationPipeline {
     static task = "sentiment-analysis";
@@ -11,6 +11,11 @@ class ClassificationPipeline {
         }
 
         return this.instance;
+    }
+
+    static async output(text) {
+        const instance = await this.getInstance();
+        return instance(text);
     }
 }
 

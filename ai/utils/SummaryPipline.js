@@ -1,4 +1,4 @@
-import ChatGPTClass from "./chatgpt.js";
+import TextToTextClass from "./TextToText.js";
 
 class SummaryPipeline {
     starting_prompt = "Summarise all the following text and provide the trend that answer 'what do most people say?' within 20 to 30 words"
@@ -10,7 +10,7 @@ class SummaryPipeline {
             input += "\n"
         }
 
-        return await ChatGPTClass.sendText(input);
+        return await TextToTextClass.sendText(input);
     }
 }
 
