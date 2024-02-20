@@ -163,7 +163,11 @@ export default function Import() {
       return QUESTION_TYPE.LINEAR_SCALE;
     }
     // Check if any response contains a semicolon, implying at least one CHECKBOX response
-    else if (responseObj.some((response) => response.includes(";"))) {
+    else if (
+      responseObj.some(
+        (response) => response !== undefined && response.includes(";")
+      )
+    ) {
       return QUESTION_TYPE.CHECKBOX;
     }
     // Default to TEXT_ANSWER if no specific patterns are detected
