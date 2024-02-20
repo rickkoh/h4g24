@@ -5,9 +5,11 @@ import {
   AddAllNewQuestions,
   AddAllNewResponses,
   AddNewForm,
+  GetAllActivities,
 } from "@/hooks/supabaseHooks";
 import {
   ANALYSIS_TYPE,
+  Activity,
   QUESTION_TYPE,
   QuestionInsert,
   ResponseInsert,
@@ -27,7 +29,9 @@ export default function Import() {
   const router = useRouter();
   const { session } = useAuthContext();
   const { readString } = usePapaParse();
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [formInsertDetails, setFormInsertDetails] = useState<SurveyInsert>();
   const [surveyDataSource, setSurveyDataSource] = useState<QuestionInsert[]>(
     []
@@ -35,7 +39,34 @@ export default function Import() {
   const [responsesInsertDetails, setResponsesInsertDetails] = useState<
     ResponseInsert[]
   >([]);
+
   const { csvData } = useCsvDataContext();
+
+  useEffect(() => {
+    if (csvData) {
+      parseCsv();
+    } else {
+      router.push("/surveys");
+    }
+  }, [csvData]);
+
+  const [activites, setActivities] = useState<Activity[]>([]);
+
+  const [selectedActivity, setSelectedActivity] = useState<
+    string | undefined
+  >();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  async function fetchData() {
+    const activitiesResponse = await GetAllActivities();
+    if (activitiesResponse) {
+      setActivities(activitiesResponse);
+    }
+  }
+
   const combinedData = useMemo(() => {
     return responsesInsertDetails.map((response) => ({
       ...response,
@@ -168,11 +199,11 @@ export default function Import() {
       return;
     }
     try {
-      const addFormResponse = await AddNewForm({ newForm: formInsertDetails });
-      const addQuestionResponse = await AddAllNewQuestions({
+      await AddNewForm({ newForm: formInsertDetails });
+      await AddAllNewQuestions({
         newQuestions: surveyDataSource,
       });
-      const addResponseResponse = await AddAllNewResponses({
+      await AddAllNewResponses({
         newResponses: responsesInsertDetails,
       });
 
@@ -195,14 +226,6 @@ export default function Import() {
     };
     return form;
   }
-
-  useEffect(() => {
-    if (csvData) {
-      parseCsv();
-    } else {
-      router.push("/surveys");
-    }
-  }, [csvData]);
 
   if (isLoading) {
     return <Spin fullscreen />;
@@ -289,14 +312,22 @@ export default function Import() {
               />
             </Table>
           </Form.Item>
-          <Form.Item>
+          <Form.Item name="activities" label="Activities">
             <Select
-              size="large"
-              mode="multiple"
               allowClear
+              maxCount={1}
+              value={formInsertDetails?.activity_id}
+              onChange={(e) => {
+                setFormInsertDetails({ ...formInsertDetails, activity_id: e });
+              }}
               style={{ width: "100%" }}
-              placeholder="Activities"
-              options={[]}
+              placeholder="Program Activities"
+              options={activites.map((activity) => {
+                return {
+                  label: <span>{activity.title}</span>,
+                  value: activity.id,
+                };
+              })}
               notFoundContent={<Empty description="No activities found" />}
             />
           </Form.Item>
