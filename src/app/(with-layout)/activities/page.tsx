@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import NewActivityForm from "@/components/forms/NewActivityForm";
 import { Activity } from "@/types/types";
 import { GetAllActivities } from "@/hooks/supabaseHooks";
+import { useRouter } from "next/navigation";
 
 const columns = [
   {
@@ -25,6 +26,7 @@ const columns = [
 ];
 
 export default function ActivitiesPage() {
+  const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activitiesData, setActivitiesData] = useState<Activity[]>([]);
 
@@ -46,7 +48,17 @@ export default function ActivitiesPage() {
             Add new activity
           </Button>
         </div>
-        <Table dataSource={activitiesData} columns={columns} />
+        <Table
+          dataSource={activitiesData}
+          columns={columns}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                router.push(`/activities/${record.id}`);
+              },
+            };
+          }}
+        />
       </Space>
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} placement="right">
         <NewActivityForm onClose={setDrawerOpen} />
