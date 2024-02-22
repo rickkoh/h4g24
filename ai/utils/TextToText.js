@@ -1,9 +1,7 @@
-import {pipeline} from "@xenova/transformers";
+import {pipeline, env} from "@xenova/transformers";
 import 'dotenv/config'
 
 class TextToTextClass {
-
-
     static task = "text2text-generation";
     static model = "Xenova/LaMini-Flan-T5-783M"
     static instance = null;
@@ -16,7 +14,6 @@ class TextToTextClass {
         if (this.instance === null) {
             this.instance = await pipeline(this.task, this.model, {progress_callback});
         }
-
         return this.instance;
     }
 

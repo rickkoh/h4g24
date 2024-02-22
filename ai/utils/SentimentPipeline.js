@@ -1,4 +1,4 @@
-import { pipeline } from "@xenova/transformers";
+import { pipeline, env } from "@xenova/transformers";
 
 class SentimentPipeline {
     static task = "sentiment-analysis";
