@@ -2,7 +2,7 @@ import { pipeline, env } from "@xenova/transformers";
 
 class SentimentPipeline {
     static task = "sentiment-analysis";
-    static model = 'Xenova/distilbert-base-uncased-finetuned-sst-2-english';
+    static model = 'osanseviero/distilbert-base-uncased-finetuned-quantized';
     static instance = null;
 
     static async getInstance(progress_callback = null) {
@@ -15,7 +15,7 @@ class SentimentPipeline {
 
     static async output(text) {
         const instance = await this.getInstance();
-        return instance(text);
+        return instance(text).then((output) => output[0]);
     }
 }
 

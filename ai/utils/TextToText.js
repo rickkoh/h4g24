@@ -8,7 +8,7 @@ class TextToTextClass {
 
     static async sendText(text) {
         const instance = await this.getInstance();
-        return await instance(text, { add_special_tokens: true, max_new_tokens: 60, repetition_penalty: 1.2});
+        return await instance(text, { add_special_tokens: true, max_new_tokens: 60, repetition_penalty: 1.2}).then((output) => output[0].generated_text);
     }
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
