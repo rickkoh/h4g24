@@ -44,7 +44,7 @@ export default function WordCloud(props: WordCloudProps) {
       Math.min(...props.data.map((w) => w.value)),
       Math.max(...props.data.map((w) => w.value)),
     ],
-    range: [10, 100],
+    range: [10, 40],
   });
   const fontSizeSetter = (datum: WordData) => fontScale(datum.value);
 
