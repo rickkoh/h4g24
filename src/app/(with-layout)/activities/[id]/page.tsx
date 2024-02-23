@@ -1,426 +1,318 @@
 "use client";
-import React, { useState } from "react";
-import { Card, Col, Row, Spin } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Card, Col, Collapse, Row, Space, Spin, Table } from "antd";
 import WordCloud from "@/components/chart/WordCloud";
+import {
+  RobotOutlined,
+  SmileTwoTone,
+  MehTwoTone,
+  FrownTwoTone,
+} from "@ant-design/icons";
+import { GetAllForms } from "@/hooks/supabaseHooks";
+import { Survey } from "@/types/types";
+import { useRouter } from "next/navigation";
+import Paragraph from "antd/es/typography/Paragraph";
 
-const words = [
-  {
-    text: "China",
-    value: 1383220000,
-  },
-  {
-    text: "India",
-    value: 1316000000,
-  },
-  {
-    text: "United States",
-    value: 324982000,
-  },
-  {
-    text: "Indonesia",
-    value: 263510000,
-  },
-  {
-    text: "Brazil",
-    value: 207505000,
-  },
-  {
-    text: "Pakistan",
-    value: 196459000,
-  },
-  {
-    text: "Nigeria",
-    value: 191836000,
-  },
-  {
-    text: "Bangladesh",
-    value: 162459000,
-  },
-  {
-    text: "Russia",
-    value: 146804372,
-  },
-  {
-    text: "Japan",
-    value: 126790000,
-  },
-  {
-    text: "Mexico",
-    value: 123518000,
-  },
-  {
-    text: "Ethiopia",
-    value: 104345000,
-  },
-  {
-    text: "Philippines",
-    value: 104037000,
-  },
-  {
-    text: "Egypt",
-    value: 93013300,
-  },
-  {
-    text: "Vietnam",
-    value: 92700000,
-  },
-  {
-    text: "Germany",
-    value: 82800000,
-  },
-  {
-    text: "Democratic Republic of the Congo",
-    value: 82243000,
-  },
-  {
-    text: "Iran",
-    value: 80135400,
-  },
-  {
-    text: "Turkey",
-    value: 79814871,
-  },
-  {
-    text: "Thailand",
-    value: 68298000,
-  },
-  {
-    text: "France",
-    value: 67013000,
-  },
-  {
-    text: "United Kingdom",
-    value: 65110000,
-  },
-  {
-    text: "Italy",
-    value: 60599936,
-  },
-  {
-    text: "Tanzania",
-    value: 56878000,
-  },
-  {
-    text: "South Africa",
-    value: 55908000,
-  },
-  {
-    text: "Myanmar",
-    value: 54836000,
-  },
-  {
-    text: "South Korea",
-    value: 51446201,
-  },
-  {
-    text: "Colombia",
-    value: 49224700,
-  },
-  {
-    text: "Kenya",
-    value: 48467000,
-  },
-  {
-    text: "Spain",
-    value: 46812000,
-  },
-  {
-    text: "Argentina",
-    value: 43850000,
-  },
-  {
-    text: "Ukraine",
-    value: 42541633,
-  },
-  {
-    text: "Sudan",
-    value: 42176000,
-  },
-  {
-    text: "Uganda",
-    value: 41653000,
-  },
-  {
-    text: "Algeria",
-    value: 41064000,
-  },
-  {
-    text: "Poland",
-    value: 38424000,
-  },
-  {
-    text: "Iraq",
-    value: 37883543,
-  },
-  {
-    text: "Canada",
-    value: 36541000,
-  },
-  {
-    text: "Morocco",
-    value: 34317500,
-  },
-  {
-    text: "Saudi Arabia",
-    value: 33710021,
-  },
-  {
-    text: "Uzbekistan",
-    value: 32121000,
-  },
-  {
-    text: "Malaysia",
-    value: 32063200,
-  },
-  {
-    text: "Peru",
-    value: 31826018,
-  },
-  {
-    text: "Venezuela",
-    value: 31431164,
-  },
-  {
-    text: "Nepal",
-    value: 28825709,
-  },
-  {
-    text: "Angola",
-    value: 28359634,
-  },
-  {
-    text: "Ghana",
-    value: 28308301,
-  },
-  {
-    text: "Yemen",
-    value: 28120000,
-  },
-  {
-    text: "Afghanistan",
-    value: 27657145,
-  },
-  {
-    text: "Mozambique",
-    value: 27128530,
-  },
-  {
-    text: "Australia",
-    value: 24460900,
-  },
-  {
-    text: "North Korea",
-    value: 24213510,
-  },
-  {
-    text: "Cameroon",
-    value: 23248044,
-  },
-  {
-    text: "Ivory Coast",
-    value: 22671331,
-  },
-  {
-    text: "Madagascar",
-    value: 22434363,
-  },
-  {
-    text: "Niger",
-    value: 21564000,
-  },
-  {
-    text: "Sri Lanka",
-    value: 21203000,
-  },
-  {
-    text: "Romania",
-    value: 19760000,
-  },
-  {
-    text: "Burkina Faso",
-    value: 19632147,
-  },
-  {
-    text: "Syria",
-    value: 18907000,
-  },
-  {
-    text: "Mali",
-    value: 18875000,
-  },
-  {
-    text: "Malawi",
-    value: 18299000,
-  },
-  {
-    text: "Chile",
-    value: 18191900,
-  },
-  {
-    text: "Kazakhstan",
-    value: 17975800,
-  },
-  {
-    text: "Netherlands",
-    value: 17121900,
-  },
-  {
-    text: "Ecuador",
-    value: 16737700,
-  },
-  {
-    text: "Guatemala",
-    value: 16176133,
-  },
-  {
-    text: "Zambia",
-    value: 15933883,
-  },
-  {
-    text: "Cambodia",
-    value: 15626444,
-  },
-  {
-    text: "Senegal",
-    value: 15256346,
-  },
-  {
-    text: "Chad",
-    value: 14965000,
-  },
-  {
-    text: "Zimbabwe",
-    value: 14542235,
-  },
-  {
-    text: "Guinea",
-    value: 13291000,
-  },
-  {
-    text: "South Sudan",
-    value: 12131000,
-  },
-  {
-    text: "Rwanda",
-    value: 11553188,
-  },
-  {
-    text: "Belgium",
-    value: 11356191,
-  },
-  {
-    text: "Tunisia",
-    value: 11299400,
-  },
-  {
-    text: "Cuba",
-    value: 11239004,
-  },
-  {
-    text: "Bolivia",
-    value: 11145770,
-  },
-  {
-    text: "Somalia",
-    value: 11079000,
-  },
-  {
-    text: "Haiti",
-    value: 11078033,
-  },
-  {
-    text: "Greece",
-    value: 10783748,
-  },
-  {
-    text: "Benin",
-    value: 10653654,
-  },
-  {
-    text: "Czech Republic",
-    value: 10578820,
-  },
-  {
-    text: "Portugal",
-    value: 10341330,
-  },
-  {
-    text: "Burundi",
-    value: 10114505,
-  },
-  {
-    text: "Dominican Republic",
-    value: 10075045,
-  },
-  {
-    text: "Sweden",
-    value: 10054100,
-  },
-  {
-    text: "United Arab Emirates",
-    value: 10003223,
-  },
-  {
-    text: "Jordan",
-    value: 9889270,
-  },
-  {
-    text: "Azerbaijan",
-    value: 9823667,
-  },
-  {
-    text: "Hungary",
-    value: 9799000,
-  },
-  {
-    text: "Belarus",
-    value: 9498600,
-  },
-  {
-    text: "Honduras",
-    value: 8866351,
-  },
-  {
-    text: "Austria",
-    value: 8773686,
-  },
-  {
-    text: "Tajikistan",
-    value: 8742000,
-  },
-  {
-    text: "Israel",
-    value: 8690220,
-  },
-  {
-    text: "Switzerland",
-    value: 8417700,
-  },
-  {
-    text: "Papua New Guinea",
-    value: 8151300,
+// See where the activity data is fetched
+// fakeData should be replaced with the attribute called "ai_analysis" from the activity.
+const fakeData = {
+  summary:
+    "Participants enjoyed the well-structured and socially interactive Plants Growing activity, appreciating clear instructions that facilitated seamless participation. The positive feedback indicated an 88.2% likelihood of future engagement in similar activities. Despite this, 71.6% perceived the information source negatively.\n\nFavorite aspects included structured nature (85%), clear instructions (90%), peaceful environment (80%), and social interactions with friends (70%). However, the duration received a lower score at 40%.\n\nOverall, participants favored structured activities with clear guidance and social elements, suggesting a high interest in future engagements. To enhance satisfaction, improvements in information dissemination methods are recommended. The mixed perception of the information source underscores the need for effective communication strategies. Moreover, balancing different activity aspects, including appropriate durations, is crucial to maximize enjoyment and engagement levels.",
+  keywords: [
+    {
+      name: "structured",
+      significance: 0.8,
+    },
+    {
+      name: "flow",
+      significance: 0.7,
+    },
+    {
+      name: "friends",
+      significance: 0.6,
+    },
+    {
+      name: "interaction",
+      significance: 0.65,
+    },
+    {
+      name: "instructors",
+      significance: 0.85,
+    },
+    {
+      name: "clear",
+      significance: 0.9,
+    },
+    {
+      name: "easy",
+      significance: 0.75,
+    },
+    {
+      name: "peace",
+      significance: 0.7,
+    },
+    {
+      name: "planting",
+      significance: 0.8,
+    },
+    {
+      name: "duration",
+      significance: 0.4,
+    },
+  ],
+  sentiments: {
+    label: "NEGATIVE",
+    score: 0.9342803359031677,
+  },
+};
+
+interface Test {
+  text: string;
+  value: number;
+}
+
+const test: Test[] = [
+  {
+    text: "structured",
+    value: 0.8,
+  },
+  {
+    text: "flow",
+    value: 0.7,
+  },
+  {
+    text: "friends",
+    value: 0.6,
+  },
+  {
+    text: "interaction",
+    value: 0.65,
+  },
+  {
+    text: "instructors",
+    value: 0.85,
+  },
+  {
+    text: "clear",
+    value: 0.9,
+  },
+  {
+    text: "easy",
+    value: 0.75,
+  },
+  {
+    text: "peace",
+    value: 0.7,
+  },
+  {
+    text: "planting",
+    value: 0.8,
+  },
+  {
+    text: "duration",
+    value: 0.4,
+  },
+];
+
+function SentimentalIcon({ label }: { label: string }) {
+  switch (label) {
+    case "POSITIVE":
+      return (
+        <SmileTwoTone
+          style={{
+            fontSize: "256px",
+          }}
+        />
+      );
+    case "NEGATIVE":
+      return (
+        <FrownTwoTone
+          style={{
+            fontSize: "256px",
+          }}
+          twoToneColor="#eb2f96"
+        />
+      );
+    case "NEUTRAL":
+      return (
+        <MehTwoTone
+          style={{
+            fontSize: "256px",
+          }}
+          twoToneColor="#52c41a"
+        />
+      );
+    default:
+      return (
+        <RobotOutlined
+          style={{
+            fontSize: "256px",
+          }}
+        />
+      );
+  }
+}
+
+const tableColumns = [
+  {
+    title: "Title",
+    dataIndex: "title",
+    key: "title",
+  },
+  {
+    title: "Date created",
+    dataIndex: "created_at",
+    key: "created_at",
+  },
+  {
+    title: "Last updated",
+    dataIndex: "updated_at",
+    key: "updated_at",
   },
 ];
 
 export default function Page({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const { id } = params;
+  const [allSurveysData, setAllSurveysData] = useState<Survey[]>();
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isAIAnalysisLoading, setIsAIAnalysisLoading] = useState(false);
+
+  useEffect(() => {
+    fetchSurveyData();
+  }, []);
+
+  function fetchSurveyData() {
+    // TODO: Change this to get survey data specific to the activity
+    setIsLoading(true);
+    GetAllForms().then((data) => {
+      if (data) {
+        setAllSurveysData(data);
+      }
+      setIsLoading(false);
+    });
+  }
+
+  function loadAnalysis() {
+    // refresh or load ai analysis
+    setIsAIAnalysisLoading(true);
+    // post
+    fetch(`https://ngrok.adwinang.dev/analyse/activities/id/${id}`, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    }).then((res) => {
+      // Update
+      setIsAIAnalysisLoading(false);
+
+      // Currently commented out because response is not showing
+      // We just assume it's successful
+
+      // Uncomment to debug
+      // console.log(res);
+      // console.log(res.status);
+      // console.log("nice");
+      // if (res.status === 200) {
+      // console.log("yay");
+      // // Make another call to database reload AI components
+      // }
+    });
+  }
 
   if (isLoading) {
     return <Spin />;
   }
+
   return (
-    <div className="site-card-wrapper">
-      <Row gutter={[16, 16]}>
-        <Col span={6}>
-          <Card title="Keyword Analysis" bordered={false}>
-            <WordCloud data={words} width={260} height={260} />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
-        <Col span={24}>
-          {/* <Table
+    <main>
+      <Space direction="vertical" size="large" style={{ display: "flex" }}>
+        <div className="flex justify-end">
+          <Button
+            type="primary"
+            icon={<RobotOutlined />}
+            onClick={() => loadAnalysis()}
+          >
+            Apply AI Analysis
+          </Button>
+        </div>
+        <div className="site-card-wrapper">
+          <Row gutter={[16, 16]}>
+            <Col span={6}>
+              <Card title="Total number of surveys" bordered={false}></Card>
+            </Col>
+            <Col span={6}>
+              <Card title="Total number of responses" bordered={false}></Card>
+            </Col>
+            <Col span={6}>
+              <Card title="Keyword Analysis" bordered={false}></Card>
+            </Col>
+            <Col span={6}>
+              <Card title="Keyword Analysis" bordered={false}></Card>
+            </Col>
+            <Col span={8}>
+              <Card title="AI Summarised Findings" bordered={false}>
+                <div className="max-h-64 pt-8 overflow-scroll flex justify-center items-center">
+                  {fakeData.summary ? (
+                    <Paragraph>{fakeData.summary}</Paragraph>
+                  ) : (
+                    <Button
+                      type="primary"
+                      icon={<RobotOutlined />}
+                      onClick={() => loadAnalysis()}
+                    >
+                      Apply AI Analysis
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card title="Keyword Analysis" bordered={false}>
+                <div className="max-h-64 overflow-scroll flex justify-center items-center">
+                  {fakeData.keywords ? (
+                    <WordCloud data={test} width={256} height={256} />
+                  ) : (
+                    <Button
+                      type="primary"
+                      icon={<RobotOutlined />}
+                      onClick={() => loadAnalysis()}
+                    >
+                      Apply AI Analysis
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card title="Overall Activity Sentimental" bordered={false}>
+                <Space
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    justifyItems: "center",
+                  }}
+                >
+                  {fakeData.sentiments ? (
+                    <SentimentalIcon label={fakeData.sentiments.label} />
+                  ) : (
+                    <Button
+                      type="primary"
+                      icon={<RobotOutlined />}
+                      onClick={() => loadAnalysis()}
+                    >
+                      Apply AI Analysis
+                    </Button>
+                  )}
+                </Space>
+              </Card>
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]} style={{ marginTop: 20 }}>
+            <Col span={24}>
+              {/* <Table
             dataSource={Array.from(formResponses, ([question, responses]) => {
               return {
                 question: question.text,
@@ -434,8 +326,21 @@ export default function Page({ params }: { params: { id: string } }) {
             <Column title="Question" dataIndex="question" key="question" />
             <Column title="Responses" dataIndex="responses" key="responses" />
           </Table> */}
-        </Col>
-      </Row>
-    </div>
+            </Col>
+          </Row>
+        </div>
+        <Table
+          dataSource={allSurveysData}
+          columns={tableColumns}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                router.push(`/surveys/${record.id}`);
+              },
+            };
+          }}
+        />
+      </Space>
+    </main>
   );
 }
