@@ -11,28 +11,34 @@ export type Database = {
     Tables: {
       activities: {
         Row: {
+          analysis_output: Json | null
           created_at: string
           created_by: string | null
           description: string | null
           id: string
+          last_analysed: string | null
           program_id: string | null
           title: string | null
           updated_at: string
         }
         Insert: {
+          analysis_output?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
+          last_analysed?: string | null
           program_id?: string | null
           title?: string | null
           updated_at?: string
         }
         Update: {
+          analysis_output?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
+          last_analysed?: string | null
           program_id?: string | null
           title?: string | null
           updated_at?: string
@@ -50,6 +56,7 @@ export type Database = {
       forms: {
         Row: {
           activity_id: string | null
+          analysis_output: Json | null
           created_at: string
           created_by: string | null
           id: string
@@ -59,6 +66,7 @@ export type Database = {
         }
         Insert: {
           activity_id?: string | null
+          analysis_output?: Json | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -68,6 +76,7 @@ export type Database = {
         }
         Update: {
           activity_id?: string | null
+          analysis_output?: Json | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -122,6 +131,7 @@ export type Database = {
       }
       questions: {
         Row: {
+          analysis_output: Json | null
           analysis_type: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
           created_at: string
           created_by: string | null
@@ -132,6 +142,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          analysis_output?: Json | null
           analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
           created_at?: string
           created_by?: string | null
@@ -142,6 +153,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          analysis_output?: Json | null
           analysis_type?: Database["public"]["Enums"]["ANALYSIS_TYPE"] | null
           created_at?: string
           created_by?: string | null
@@ -158,12 +170,19 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
           }
         ]
       }
       responses: {
         Row: {
-          analysis_output: string | null
+          analysis_output: Json | null
           answer: string
           created_at: string
           created_by: string | null
@@ -172,16 +191,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          analysis_output?: string | null
+          analysis_output?: Json | null
           answer: string
           created_at?: string
           created_by?: string | null
           id?: string
-          question_id?: string
+          question_id: string
           updated_at?: string
         }
         Update: {
-          analysis_output?: string | null
+          analysis_output?: Json | null
           answer?: string
           created_at?: string
           created_by?: string | null
@@ -195,6 +214,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
             referencedColumns: ["id"]
           }
         ]

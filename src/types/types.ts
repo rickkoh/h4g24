@@ -24,3 +24,19 @@ export enum QUESTION_TYPE {
   CHECKBOX = "CHECKBOX",
   LINEAR_SCALE = "LINEAR_SCALE",
 }
+
+type Keyword = {
+  name: string;
+  significance: number;
+};
+
+type Sentiment = {
+  label: string;
+  score: number;
+};
+
+export interface AnalysisOutput {
+  summary: string;
+  keywords: Keyword[];
+  sentiments: Sentiment;
+}

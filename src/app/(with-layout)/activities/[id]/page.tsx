@@ -1,82 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Row,
-  Space,
-  Spin,
-  Table,
-  Typography,
-} from "antd";
+import { Button, Card, Col, Collapse, Row, Space, Spin, Table, Typography } from "antd";
 import WordCloud from "@/components/chart/WordCloud";
-import {
-  RobotOutlined,
-  SmileTwoTone,
-  MehTwoTone,
-  FrownTwoTone,
-} from "@ant-design/icons";
+import { RobotOutlined, SmileTwoTone, MehTwoTone, FrownTwoTone } from "@ant-design/icons";
 import { GetActivityById, GetFormByActivityId } from "@/hooks/supabaseHooks";
-import { Activity, Survey } from "@/types/types";
+import { Activity, Survey, AnalysisOutput } from "@/types/types";
 import { useRouter } from "next/navigation";
 import Paragraph from "antd/es/typography/Paragraph";
 import { format } from "date-fns";
-
-// TODO: fakeData should be replaced with the attribute called "ai_analysis" from the activity.
-// Once you have updated the Activity type, you can replace the fakeData with the actual data.
-// E.g. activity.ai_analysis.summary etc
-const fakeData = {
-  summary:
-    "Participants enjoyed the well-structured and socially interactive Plants Growing activity, appreciating clear instructions that facilitated seamless participation. The positive feedback indicated an 88.2% likelihood of future engagement in similar activities. Despite this, 71.6% perceived the information source negatively.\n\nFavorite aspects included structured nature (85%), clear instructions (90%), peaceful environment (80%), and social interactions with friends (70%). However, the duration received a lower score at 40%.\n\nOverall, participants favored structured activities with clear guidance and social elements, suggesting a high interest in future engagements. To enhance satisfaction, improvements in information dissemination methods are recommended. The mixed perception of the information source underscores the need for effective communication strategies. Moreover, balancing different activity aspects, including appropriate durations, is crucial to maximize enjoyment and engagement levels.",
-  keywords: [
-    {
-      name: "structured",
-      significance: 0.8,
-    },
-    {
-      name: "flow",
-      significance: 0.7,
-    },
-    {
-      name: "friends",
-      significance: 0.6,
-    },
-    {
-      name: "interaction",
-      significance: 0.65,
-    },
-    {
-      name: "instructors",
-      significance: 0.85,
-    },
-    {
-      name: "clear",
-      significance: 0.9,
-    },
-    {
-      name: "easy",
-      significance: 0.75,
-    },
-    {
-      name: "peace",
-      significance: 0.7,
-    },
-    {
-      name: "planting",
-      significance: 0.8,
-    },
-    {
-      name: "duration",
-      significance: 0.4,
-    },
-  ],
-  sentiments: {
-    label: "NEGATIVE",
-    score: 0.9342803359031677,
-  },
-};
+import { Json } from "@/types/supabase";
 
 const tableColumns = [
   {
@@ -96,9 +28,7 @@ const tableColumns = [
   },
 ];
 
-function mapKeywordsToWordCloudData(
-  keywords: { name: string; significance: number }[]
-) {
+function mapKeywordsToWordCloudData(keywords: { name: string; significance: number }[]) {
   return keywords.map((keyword) => {
     return {
       text: keyword.name,
@@ -150,6 +80,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
 
   const [activity, setActivity] = useState<Activity>();
+  const [analysisOutput, setAnalysisOutput] = useState<AnalysisOutput>();
 
   useEffect(() => {
     fetchActivityData();
@@ -160,6 +91,9 @@ export default function Page({ params }: { params: { id: string } }) {
     GetActivityById({ activityId: id }).then((data) => {
       if (data) {
         setActivity(data);
+        if (data.analysis_output) {
+          setAnalysisOutput(data.analysis_output as unknown as AnalysisOutput);
+        }
       }
       setIsLoading(false);
     });
@@ -216,7 +150,7 @@ export default function Page({ params }: { params: { id: string } }) {
     });
   }
 
-  if (isLoading) {
+  if (isLoading || !activity || !allSurveysData) {
     return <Spin />;
   }
 
@@ -224,11 +158,7 @@ export default function Page({ params }: { params: { id: string } }) {
     <main>
       <Space direction="vertical" size="large" style={{ display: "flex" }}>
         <div className="flex justify-end">
-          <Button
-            type="primary"
-            icon={<RobotOutlined />}
-            onClick={() => loadAnalysis()}
-          >
+          <Button type="primary" icon={<RobotOutlined />} onClick={() => loadAnalysis()}>
             Apply AI Analysis
           </Button>
         </div>
@@ -243,9 +173,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     justifyItems: "center",
                   }}
                 >
-                  <Typography.Title level={1}>
-                    {activity?.title}
-                  </Typography.Title>
+                  <Typography.Title level={1}>{activity?.title}</Typography.Title>
                 </Space>
               </Card>
             </Col>
@@ -258,9 +186,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     justifyItems: "center",
                   }}
                 >
-                  <Typography.Title level={1}>
-                    {allSurveysData?.length}
-                  </Typography.Title>
+                  <Typography.Title level={1}>{allSurveysData?.length}</Typography.Title>
                 </Space>
               </Card>
             </Col>
@@ -286,27 +212,19 @@ export default function Page({ params }: { params: { id: string } }) {
                     justifyItems: "center",
                   }}
                 >
-                  <Typography.Title level={1}>
-                    {activity?.created_at
-                      ? format(activity!.created_at, "dd/MM/yyyy")
-                      : ""}
-                  </Typography.Title>
+                  <Typography.Title level={1}>{activity?.created_at ? format(activity!.created_at, "dd/MM/yyyy") : ""}</Typography.Title>
                 </Space>
               </Card>
             </Col>
             <Col span={8}>
               <Card title="AI Summarised Findings" bordered={false}>
                 <div className="max-h-64 pt-8 overflow-scroll flex justify-center items-center">
-                  {fakeData.summary ? (
-                    <Paragraph>{fakeData.summary}</Paragraph>
+                  {analysisOutput?.summary ? (
+                    <Paragraph>{analysisOutput.summary}</Paragraph>
                   ) : isAIAnalysisLoading ? (
                     <Spin />
                   ) : (
-                    <Button
-                      type="primary"
-                      icon={<RobotOutlined />}
-                      onClick={() => loadAnalysis()}
-                    >
+                    <Button type="primary" icon={<RobotOutlined />} onClick={() => loadAnalysis()}>
                       Apply AI Analysis
                     </Button>
                   )}
@@ -316,20 +234,12 @@ export default function Page({ params }: { params: { id: string } }) {
             <Col span={8}>
               <Card title="Keyword Analysis" bordered={false}>
                 <div className="max-h-64 overflow-scroll flex justify-center items-center">
-                  {fakeData.keywords ? (
-                    <WordCloud
-                      data={mapKeywordsToWordCloudData(fakeData.keywords)}
-                      width={256}
-                      height={256}
-                    />
+                  {analysisOutput?.keywords ? (
+                    <WordCloud data={mapKeywordsToWordCloudData(analysisOutput.keywords)} width={256} height={256} />
                   ) : isAIAnalysisLoading ? (
                     <Spin />
                   ) : (
-                    <Button
-                      type="primary"
-                      icon={<RobotOutlined />}
-                      onClick={() => loadAnalysis()}
-                    >
+                    <Button type="primary" icon={<RobotOutlined />} onClick={() => loadAnalysis()}>
                       Apply AI Analysis
                     </Button>
                   )}
@@ -345,16 +255,12 @@ export default function Page({ params }: { params: { id: string } }) {
                     justifyItems: "center",
                   }}
                 >
-                  {fakeData.sentiments ? (
-                    <SentimentalIcon label={fakeData.sentiments.label} />
+                  {analysisOutput?.sentiments ? (
+                    <SentimentalIcon label={analysisOutput.sentiments.label} />
                   ) : isAIAnalysisLoading ? (
                     <Spin />
                   ) : (
-                    <Button
-                      type="primary"
-                      icon={<RobotOutlined />}
-                      onClick={() => loadAnalysis()}
-                    >
+                    <Button type="primary" icon={<RobotOutlined />} onClick={() => loadAnalysis()}>
                       Apply AI Analysis
                     </Button>
                   )}
