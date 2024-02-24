@@ -22,6 +22,7 @@
     "@visx/text": "^3.3.0",
     "@visx/wordcloud": "^3.3.0",
     "antd": "^5.13.3",
+    "date-fns": "^3.3.1",
     "dotenv": "^16.4.1",
     "next": "14.1.0",
     "papaparse": "^5.4.1",
