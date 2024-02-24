@@ -12,10 +12,10 @@ const ANALYSIS_TYPE = ["SENTIMENTAL", "SUMMARY", "KEYWORD"];
 const QUESTION_TYPE = ["MULTIPLE_CHOICE", "CHECKBOX", "LINEAR_SCALE", "TEXT_ANSWER"];
 
 /* PATCH individual analysis  */
-router.put('/responses/id/:id', async function(req, res) {
+router.post('/responses/id/:id', async function(req, res) {
     const { id } = req.params;
     const analysis_output = {
-        sentiments: [],
+        sentiments: {},
         summary: "",
         keywords: [],
     };
@@ -63,7 +63,7 @@ router.put('/responses/id/:id', async function(req, res) {
 
 
 /* PATCH all responses under a question */
-router.put('/questions/id/:id', async function(req, res) {
+router.post('/questions/id/:id', async function(req, res) {
     const { id } = req.params;
     const analysis_output = {
         sentiments: {},
@@ -76,8 +76,8 @@ router.put('/questions/id/:id', async function(req, res) {
         return;
     }
     const question = qData[0];
-    const { analysis_type } = question;
-    if (!analysis_type) {
+    const { analysis_type, question_type } = question;
+    if (!analysis_type && question_type !== QUESTION_TYPE[3]) {
         res.status(200).send("There is nothing to analyse");
         return;
     }
@@ -96,8 +96,19 @@ router.put('/questions/id/:id', async function(req, res) {
     switch ( analysis_type ) {
         case null:
         case "NONE":
-            res.status(200).send("There is nothing to analyse");
-            return;
+            if (question_type === QUESTION_TYPE[3]) {
+                for (const r of rData) input += r.answer + "\n";
+                analysis_output.summary = await SummaryPipeline.trend(question.text, input);
+                const { error: qError } =  await supabase.from("questions").update({analysis_output}).eq("id", id);
+                if (qError) {
+                    res.status(400).send("Error updating responses");
+                    return;
+                }
+                break;
+            } else {
+                res.status(200).send("There is nothing to analyse");
+                return;
+            }
         case ANALYSIS_TYPE[0]:
             for (const r of rData) {
                 analysis_output.sentiments = await SentimentPipeline.output(r.answer);
@@ -132,7 +143,7 @@ router.put('/questions/id/:id', async function(req, res) {
 })
 
 /* PATCH all responses under the questions under a survey */
-router.put('/forms/id/:id', async function(req, res) {
+router.post('/forms/id/:id', async function(req, res) {
     const { id } = req.params;
 
     const { data: qData, error: qError } = await supabase.from("questions").select().eq("form_id", id);
@@ -152,9 +163,9 @@ router.put('/forms/id/:id', async function(req, res) {
     let responseQuantity = 0;
 
     for (const question of qData) {
-        const { analysis_type, id: qId, text } = question;
+        const { analysis_type, id: qId, text, question_type } = question;
 
-        if (!analysis_type) {
+        if (!analysis_type && question_type !== QUESTION_TYPE[3]) {
             // Averaging the output for non-AI questions
             // switch (question_type) {
             //     Text_Answer is ignored if no AI is used to analyse
@@ -180,13 +191,24 @@ router.put('/forms/id/:id', async function(req, res) {
         responseQuantity = rData.length;
 
         const analysis_output = {
-            sentiments: [],
+            sentiments: {},
             summary: "",
             keywords: [],
         };
 
         let input = "";
         switch (analysis_type) {
+            case null:
+            case "NONE":
+                for (const r of rData) input += r.answer + "\n";
+                input = await SummaryPipeline.trend(question.text, input);
+                analysis_output.summary = input;
+                const {error: qaError} = await supabase.from("questions").update({analysis_output}).eq("id", qId);
+                if (qaError) {
+                    res.status(400).send("Error updating question");
+                    return;
+                }
+                break;
             case ANALYSIS_TYPE[0]:
                 let accumulatedAnswer = ""
                 for (const r of rData) {
@@ -244,7 +266,7 @@ router.put('/forms/id/:id', async function(req, res) {
     }
 
     const form_analysis_output = {
-        sentiments: [],
+        sentiments: {},
         summary: "",
         keywords: [],
     };
@@ -260,10 +282,10 @@ router.put('/forms/id/:id', async function(req, res) {
 
 })
 
-router.put("/activities/id/:id", async function(req, res) {
+router.post("/activities/id/:id", async function(req, res) {
     const { id } = req.params;
     const activity_analysis_output = {
-        sentiments: [],
+        sentiments: {},
         summary: "",
         keywords: [],
     };
@@ -297,9 +319,9 @@ router.put("/activities/id/:id", async function(req, res) {
         let responseQuantity = 0;
 
         for (const question of qData) {
-            const { analysis_type, id: qId, text, analysis_output: stored_question_analysis } = question;
+            const { analysis_type, id: qId, text, analysis_output: stored_question_analysis, question_type } = question;
 
-            if (!analysis_type) {
+            if (!analysis_type && question_type !== QUESTION_TYPE[3]) {
                 // Averaging the output for non-AI questions
                 // switch (question_type) {
                 //     Text_Answer is ignored if no AI is used to analyse
@@ -325,13 +347,28 @@ router.put("/activities/id/:id", async function(req, res) {
             responseQuantity = rData.length;
 
             const analysis_output = {
-                sentiments: [],
+                sentiments: {},
                 summary: "",
                 keywords: [],
             };
 
             let input = "";
             switch (analysis_type) {
+                case null:
+                case "NONE":
+                    if (readOnly) {
+                        break;
+                    }
+                    for (const r of rData) input += r.answer + "\n";
+                    input = await SummaryPipeline.trend(question.text, input);
+                    analysis_output.summary = input;
+                    const {error: qaError} = await supabase.from("questions").update({analysis_output}).eq("id", qId);
+                    if (qaError) {
+                        res.status(400).send("Error updating question");
+                        return;
+                    }
+                    break;
+
                 case ANALYSIS_TYPE[0]:
                     let accumulatedAnswer = ""
                     for (const r of rData) {
@@ -365,9 +402,8 @@ router.put("/activities/id/:id", async function(req, res) {
                         break;
                     }
                     for (const r of rData) input += r.answer + "\n";
-                    const summary = await SummaryPipeline.trend(question.text, input);
-                    input = summary;
-                    analysis_output.summary = summary;
+                    input = await SummaryPipeline.trend(question.text, input);
+                    analysis_output.summary = input;
                     const {error: qError} = await supabase.from("questions").update({analysis_output}).eq("id", qId);
                     if (qError) {
                         res.status(400).send("Error updating question");
@@ -407,7 +443,7 @@ router.put("/activities/id/:id", async function(req, res) {
             return
         }
         const form_analysis_output = {
-            sentiments: [],
+            sentiments: {},
             summary: "",
             keywords: [],
         };
@@ -448,9 +484,10 @@ router.post("/llama", async function(req, res) {
 
 router.put("/clear", async function(req, res) {
     const analysis_output = null;
-    await supabase.from("responses").update({analysis_output});
-    await supabase.from("questions").update({analysis_output});
-    await supabase.from("question_keywords").delete();
+    await supabase.from("responses").update({analysis_output}).neq('analysis_output', null);
+    await supabase.from("questions").update({analysis_output}).neq('analysis_output', null);
+    await supabase.from("forms").update({analysis_output}).neq('analysis_output', null);
+    await supabase.from("activities").update({analysis_output}).neq('analysis_output', null);
     res.status(200).send("Analysis cleared");
 })
 
