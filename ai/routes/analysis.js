@@ -322,17 +322,6 @@ router.post("/activities/id/:id", async function(req, res) {
             const { analysis_type, id: qId, text, analysis_output: stored_question_analysis, question_type } = question;
 
             if (!analysis_type && question_type !== QUESTION_TYPE[3]) {
-                // Averaging the output for non-AI questions
-                // switch (question_type) {
-                //     Text_Answer is ignored if no AI is used to analyse
-                //     case QUESTION_TYPE[3]:
-                //         continue;
-                //     case QUESTION_TYPE[1]:
-                //     case QUESTION_TYPE[0]:
-                //         const {data: oData, error: oError} = await supabase.from("responses").select().eq("question_id", qId);
-                //
-                //
-                // }
                 continue;
             }
             const {data: rData, error: rError} = await supabase.from("responses").select().eq("question_id", qId);
@@ -402,8 +391,9 @@ router.post("/activities/id/:id", async function(req, res) {
                         break;
                     }
                     for (const r of rData) input += r.answer + "\n";
-                    input = await SummaryPipeline.trend(question.text, input);
-                    analysis_output.summary = input;
+                    const summary = await SummaryPipeline.trend(question.text, input);
+                    input = summary;
+                    analysis_output.summary = summary;
                     const {error: qError} = await supabase.from("questions").update({analysis_output}).eq("id", qId);
                     if (qError) {
                         res.status(400).send("Error updating question");
@@ -412,10 +402,7 @@ router.post("/activities/id/:id", async function(req, res) {
                     break;
                 case ANALYSIS_TYPE[2]:
                     for (const response of rData) input += response.answer + "\n";
-                    if (readOnly) {
-                        activity_analysis_input.keywords += input;
-                        break;
-                    }
+                    activity_analysis_input.keywords += input;
                     const keywords = await KeywordPipeline.identify(input);
                     analysis_output.keywords = keywords;
                     input = JSON.stringify(keywords);
@@ -448,6 +435,7 @@ router.post("/activities/id/:id", async function(req, res) {
             keywords: [],
         };
         form_analysis_output.summary = await SummaryContextPipeline.trend(fData[0].title, summaryContextInput);
+        activity_analysis_input.summary += form_analysis_output.summary + "\n";
 
         const {data: fuData, error: fuError} = await supabase.from("forms").update({analysis_output: form_analysis_output}).eq("id", fId);
         if (fuError) {
